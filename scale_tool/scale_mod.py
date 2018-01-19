@@ -16,17 +16,22 @@ class BadScaleError(ValueError):
 
 
 class Scale:
+    """
+    A class to define a musical scale based on two arguments: the root notes
+    and the scale name. Not defining these arguments will create a C Major
+    scale. Defining a scale that hasn't been implemented (or a root note that
+    isn't between A and G#) will raise custom exceptions defined above.
+    """
 
-    root = 'C'  # let's start with C as our root
     all_notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
                  'A', 'A#', 'B']
     valid_scales = {
         'major': [0, 1, 1, 0.5, 1, 1, 1],
         'minor': [0, 1, 0.5, 1, 1, 0.5, 1]
         }
-    # valid_scales = [self.major, self.minor]
 
     def __init__(self, root='C', scale_name='major'):
+        "verify args, run methods to get scale"
         try:
             root = root.upper()
             scale_name = scale_name.lower()
@@ -45,9 +50,9 @@ class Scale:
             raise
 
     def get_chromatic_scale(self, root):
-        "returns a chromatic scale with all twelve semi-tones with root as first element"
+        "returns a chromatic scale with all twelve semi-tones"
         x = self.all_notes.index(root)
-        new_notes = self.all_notes[(x):]
+        new_notes = self.all_notes[x:]
         for note in self.all_notes[:x]:
             new_notes.append(note)
         return new_notes
@@ -63,6 +68,7 @@ class Scale:
         return scale_notes
 
     def get_valid_scales(self):
+        "return the keys of the valid scales dict"
         print(self.valid_scales.keys())
         return self.valid_scales.keys()
 
