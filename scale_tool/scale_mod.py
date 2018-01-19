@@ -26,34 +26,55 @@ class Scale:
         }
     # valid_scales = [self.major, self.minor]
 
-    def __init__(self, root='C', scale='major'):
+    def __init__(self, root='C', scale_name='major'):
         try:
             root = root.upper()
-            scale = scale.lower()
+            scale_name = scale_name.lower()
             if root in self.all_notes:
                 self.root = root
+                self.chromatic_scale = self.get_chromatic_scale(root)
             else:
                 raise BadRootError(root)
-            if scale in self.valid_scales.keys():
-                self.scale = self.valid_scales[scale]
+            if scale_name in self.valid_scales.keys():
+                self.scale_name = scale_name
+                self.scale = self.get_scale_notes(self.valid_scales[scale_name])
             else:
-                raise BadScaleError(scale)
+                raise BadScaleError(scale_name)
         except (BadRootError, BadScaleError):
             print("something is wrong")
-            raise  # fucking creates a C major scale anyway
-        self.scale_notes = []
+            raise
 
+    def get_chromatic_scale(self, root):
+        "returns a chromatic scale with all twelve semi-tones with root as first element"
+        x = self.all_notes.index(root)
+        new_notes = self.all_notes[(x):]
+        for note in self.all_notes[:x]:
+            new_notes.append(note)
+        return new_notes
 
-
-    def calculate_scale_notes(self):
+    def get_scale_notes(self, scale):
+        "returns a list of notes in the defined scale"
         element = 0
-        for index in range(len(self.scale)):
-            print('index: '+str(index))
-            element = int(element + (self.scale[index] * 2))
-            print('element: '+str(element))
-            self.scale_notes.append(self.all_notes[element])
-            print(self.scale_notes)
-        # assert len(self.scale_notes) == 7
+        scale_notes = []
+        for index in range(len(scale)):
+            element = int(element + (scale[index] * 2))
+            scale_notes.append(self.chromatic_scale[element])
+        print(scale_notes)
+        return scale_notes
 
-    def return_scale_notes(self):
-        return self.scale_notes
+    def get_valid_scales(self):
+        print(self.valid_scales.keys())
+        return self.valid_scales.keys()
+
+    def get_interval(self, interval):
+        "returns an interval, like fifth"
+        try:
+            assert interval < len(self.chromatic_scale)
+        except AssertionError:
+            print('your interval is bad')
+        interval_note = self.scale[(interval-1)]
+        print('The {} of the {} - {} scale is {}.'.format(interval,
+                                                          self.root,
+                                                          self.scale_name,
+                                                          interval_note))
+        return interval_note
