@@ -75,9 +75,10 @@ class Scale:
     def get_interval(self, interval):
         "returns an interval, like fifth"
         try:
-            assert interval < len(self.chromatic_scale)
+            assert interval < (len(self.scale)+1)
         except AssertionError:
             print('your interval is bad')
+            raise
         interval_note = self.scale[(interval-1)]
         print('The {} of the {} - {} scale is {}.'.format(interval,
                                                           self.root,
