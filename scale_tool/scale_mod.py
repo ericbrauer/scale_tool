@@ -30,14 +30,24 @@ class Scale:
         'minor': [0, 1, 0.5, 1, 1, 0.5, 1]
         }
 
-    def __init__(self, root='C', scale_name='major'):
+    def __init__(self, **kwargs):
         "verify args, run methods to get scale"
+        if 'root' in kwargs.keys():
+            root = kwargs['root'].upper()
+        else:
+            root = 'C'
+        if 'scale_name' in kwargs.keys():
+            scale_name = kwargs['scale_name'].lower()
+        else:
+            scale_name = 'major'
+        self.verify_input(root, scale_name)
+
+    def verify_input(self, root, scale_name):
+        "make sure input is valid, set variables to object"
         try:
-            root = root.upper()
-            scale_name = scale_name.lower()
             if root in self.all_notes:
-                self.root = root
-                self.chromatic_scale = self.get_chromatic_scale(root)
+                    self.root = root
+                    self.chromatic_scale = self.get_chromatic_scale(root)
             else:
                 raise BadRootError(root)
             if scale_name in self.valid_scales.keys():

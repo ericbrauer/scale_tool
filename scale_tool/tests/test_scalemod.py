@@ -14,12 +14,12 @@ class Test(unittest.TestCase):
     def test_roots(self):
         key_list = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'D#']
         for key in key_list:
-            s = Scale(key)
+            s = Scale(root = key)
             self.assertEqual(s.root, key)
 
     def test_intervals(self):
         key_list = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
-        s = Scale('c')
+        s = Scale(root = 'c')
         for key in key_list:
             self.assertEqual(s.get_interval(key_list.index(key)+1), key)
 
@@ -32,14 +32,17 @@ class Test(unittest.TestCase):
     def test_bad_root(self):
         # s = Scale('2')
         with self.assertRaises(BadRootError):
-            s = Scale('2')
+            s = Scale(root='2')
 
     def test_bad_scale(self):
         with self.assertRaises(BadScaleError):
-            s = Scale('c', 'garbage')
+            s = Scale(root='c', scale_name = 'garbage')
 
 
-    # TODO test minor
+    def test_minor(self):
+        correct = ['E', 'F#', 'G', 'A', 'B', 'C', 'D']
+        s = Scale(root='e', scale_name='minor')
+        self.assertEqual(s.scale, correct)
 
 if __name__ == '__main__':
     unittest.main()
