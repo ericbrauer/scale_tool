@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+
+import sys
+import getopt
+
+
 class BadRootError(ValueError):
     """the note you defined is not part of the Western Scale"""
     def __init__(self, root, *args):
@@ -104,3 +110,42 @@ class Scale:
                                                           self.scale_name,
                                                           interval_note))
         return interval_note
+
+
+def usage():
+    print('Use -h or --help to read this message')
+    print('Use -r or --root= to set a root note for the scale')
+    print('Use -n or --scale_note= to set a type of scale to return')
+
+
+def main(argv):
+    "here's where we handle system arguments in case people wish to use this"
+    "module as a standalone cli tool"
+    try:
+        opts, args = getopt.getopt(argv, "hr:n:", ["help", "root=", "scale_name="])
+    except getopt.GetoptError:
+        usage()
+        Scale.get_valid_scales()
+        sys.exit(1)
+    try:
+        for opt, arg in opts:
+            if opt in ("-h", "--help"):
+                usage()
+                sys.exit()
+            elif opt in ("-r", "--root"):
+                root = str(arg)
+            elif opt in ("-n", "--scale_name"):
+                scale_name = str(arg)
+    except:
+        print('there was an error')
+        sys.exit(2)
+    try:
+        # TODO make this fail better
+        print(root)
+        s = Scale(root=root, scale_name=scale_name)
+    except:
+        s = Scale()
+    print(s.scale)
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
