@@ -26,8 +26,15 @@ class Scale:
     all_notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
                  'A', 'A#', 'B']
     valid_scales = {
-        'major': [0, 1, 1, 0.5, 1, 1, 1],
-        'minor': [0, 1, 0.5, 1, 1, 0.5, 1]
+        'major':        [0, 1, 1, 0.5, 1, 1, 1, 0.5],
+        'ionian':       [0, 1, 1, 0.5, 1, 1, 1, 0.5],
+        'dorian':       [0, 1, 0.5, 1, 1, 1, 0.5, 1],
+        'phrygian':     [0, 0.5, 1, 1, 1, 0.5, 1, 1],
+        'lydian':       [0, 1, 1, 1, 0.5, 1, 1, 0.5],
+        'mixolydian':   [0, 1, 1, 0.5, 1, 1, 0.5, 1],
+        'aeolian':      [0, 1, 0.5, 1, 1, 0.5, 1, 1],
+        'minor':        [0, 1, 0.5, 1, 1, 0.5, 1, 1],
+        'locrian':      [0, 0.5, 1, 1, 0.5, 1, 1, 1]
         }
 
     def __init__(self, **kwargs):
@@ -65,6 +72,7 @@ class Scale:
         new_notes = self.all_notes[x:]
         for note in self.all_notes[:x]:
             new_notes.append(note)
+        new_notes.append(self.all_notes[x])
         return new_notes
 
     def get_scale_notes(self, scale):
@@ -77,6 +85,7 @@ class Scale:
         print(scale_notes)
         return scale_notes
 
+    @staticmethod
     def get_valid_scales(self):
         "return the keys of the valid scales dict"
         print(self.valid_scales.keys())
