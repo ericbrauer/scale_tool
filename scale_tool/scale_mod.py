@@ -65,14 +65,15 @@ class Scale:
                 raise BadRootError(root)
             if scale_name in self.valid_scales.keys():
                 self.scale_name = scale_name
-                self.scale = self.get_scale_notes(self.valid_scales[scale_name])
+                self.scale = self.valid_scales[scale_name]
+                self.get_scale_notes()
             else:
                 raise BadScaleError(scale_name)
         except (BadRootError, BadScaleError):
-            print("something is wrong")
+            # print("something is wrong")
             raise
 
-    def get_chromatic_scale(self, root):
+    def get_chromatic_scale(self, root='c'):
         "returns a chromatic scale with all twelve semi-tones"
         x = self.all_notes.index(root)
         new_notes = self.all_notes[x:]
@@ -81,21 +82,23 @@ class Scale:
         new_notes.append(self.all_notes[x])
         return new_notes
 
-    def get_scale_notes(self, scale):
+    def get_scale_notes(self):
         "returns a list of notes in the defined scale"
         element = 0
         scale_notes = []
-        for index in range(len(scale)):
-            element = int(element + (scale[index] * 2))
+        for index in range(len(self.scale)):
+            element = int(element + (self.scale[index] * 2))
             scale_notes.append(self.chromatic_scale[element])
-        print(scale_notes)
         return scale_notes
 
-    @staticmethod
+    @classmethod
     def get_valid_scales(self):
         "return the keys of the valid scales dict"
-        print(self.valid_scales.keys())
         return self.valid_scales.keys()
+
+    @classmethod
+    def get_all_notes(self):
+        return self.all_notes
 
     def get_interval(self, interval):
         "returns an interval, like fifth"
@@ -125,27 +128,36 @@ def main(argv):
         opts, args = getopt.getopt(argv, "hr:n:", ["help", "root=", "scale_name="])
     except getopt.GetoptError:
         usage()
-        Scale.get_valid_scales()
+        # Scale.get_valid_scales()
         sys.exit(1)
+    # try:
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            usage()
+            sys.exit()
+        elif opt in ("-r", "--root"):
+            root = str(arg)
+        elif opt in ("-n", "--scale_name"):
+            scale_name = str(arg)
+    # except BadRootError:
+
     try:
-        for opt, arg in opts:
-            if opt in ("-h", "--help"):
-                usage()
-                sys.exit()
-            elif opt in ("-r", "--root"):
-                root = str(arg)
-            elif opt in ("-n", "--scale_name"):
-                scale_name = str(arg)
-    except:
-        print('there was an error')
-        sys.exit(2)
-    try:
-        # TODO make this fail better
-        print(root)
         s = Scale(root=root, scale_name=scale_name)
-    except:
-        s = Scale()
-    print(s.scale)
+        print(s.get_scale_notes())
+        sys.exit(0)
+    except BadRootError:
+        print('Error: the root you entered was not valid.')
+        print('Acceptable root notes are any of the following: ')
+        for note in Scale.get_all_notes():
+            print(note)
+        sys.exit(2)
+    except BadScaleError:
+        print('Error: we didn\'t recognize the scale you specified.')
+        print('Acceptable scales include any of the following: ')
+        for scale in Scale.get_valid_scales():
+            print(scale)
+        sys.exit(2)
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])
