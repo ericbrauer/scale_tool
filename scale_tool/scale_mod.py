@@ -3,6 +3,11 @@
 import sys
 import getopt
 
+# TODO: Coming back to it months later.. tried to run cli.py. Move getopts stuff to cli.py
+# TODO: Could we use a generator for something?
+# TODO: btw, all tests failed.
+# TODO: put unit tests here, in if __main__ etc. Refer to data structs book for guidance
+# TODO: look into linked list for a possible data structure, instead appending a piece at a time
 
 class BadRootError(ValueError):
     """the note you defined is not part of the Western Scale"""
@@ -126,6 +131,8 @@ def main(argv):
     "module as a standalone cli tool"
     try:
         opts, args = getopt.getopt(argv, "hr:n:", ["help", "root=", "scale_name="])
+        if opts is None: # this  is not working
+            raise getopt.GetoptError
     except getopt.GetoptError:
         usage()
         # Scale.get_valid_scales()
@@ -134,14 +141,21 @@ def main(argv):
     for opt, arg in opts:
         if opt in ("-h", "--help"):
             usage()
-            sys.exit()
+            sys.exit(0)
         elif opt in ("-r", "--root"):
             root = str(arg)
         elif opt in ("-n", "--scale_name"):
             scale_name = str(arg)
+        else:
+            print('use -h for help')
+            sys.exit(1)
     # except BadRootError:
+    # TODO: no catch of no root variable here.
 
     try:
+        # ok, problem here. if root is set in options, I want it passed to init.
+        # But if not, it shouldn't be passed.
+        # this is... overloading? Check the old C++ book maybe.
         s = Scale(root=root, scale_name=scale_name)
         print(s.get_scale_notes())
         sys.exit(0)

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 import unittest as unittest
-# sys.path.append('../')
+sys.path.append('../')
 from scale_mod import Scale, BadRootError, BadScaleError
 
 
