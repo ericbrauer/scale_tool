@@ -92,13 +92,14 @@ class Scale:
         return scale_notes
 
     @classmethod
-    def get_valid_scales(self):
+    def get_valid_scales(cls):
         "return the keys of the valid scales dict"
-        return self.valid_scales.keys()
+        return cls.valid_scales.keys()
 
     @classmethod
-    def get_all_notes(self):
-        return self.all_notes
+    def get_all_notes(cls):
+        "return all possible notes of the Western scale"
+        return cls.all_notes
 
     def get_interval(self, interval):
         "returns an interval, like fifth"
