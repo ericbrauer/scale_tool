@@ -49,10 +49,12 @@ class Scale:
 
     def __init__(self, **kwargs):
         "verify args, run methods to get scale"
-        if 'root' in kwargs.keys():
-            try:
-                self.root = self.verify_input_root(kwargs['root'])
-            except BadRootError:
+        try:
+            self.root = self.verify_input_root(kwargs['root'])
+        except KeyError:
+                print("no root note specified.")
+                raise BadRootError(None)
+        except BadRootError:
                 # after some thought, this should stop. Have a default root in cli.py
                 print("init has failed")
         if 'scale_name' in kwargs.keys():
@@ -78,13 +80,13 @@ class Scale:
         else:
             raise BadScaleError(scale_name)
 
-    def get_chromatic_scale(self, root):
+    def get_chromatic_scale(self):
         "returns a chromatic scale with all twelve semi-tones"
-        x = self.all_notes.index(root)
+        x = self.all_notes.index(self.root)
         new_notes = self.all_notes[x:]
         for note in self.all_notes[:x]:
             new_notes.append(note)
-        new_notes.append(self.all_notes[x])
+        # new_notes.append(self.all_notes[x])
         return new_notes
 
     def get_scale_notes(self):

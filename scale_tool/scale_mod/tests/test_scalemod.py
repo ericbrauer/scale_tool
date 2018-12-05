@@ -8,8 +8,8 @@ from scale_mod import Scale, BadRootError, BadScaleError
 class Test(unittest.TestCase):
 
     def test_chromatic_scale(self):
-        s = Scale()
-        self.assertEqual(s.get_chromatic_scale('C'), ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
+        s = Scale(root='c')
+        self.assertEqual(s.get_chromatic_scale(), ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
                      'A', 'A#', 'B'])
 
     @unittest.skip('this is not implemented yet')
@@ -30,17 +30,16 @@ class Test(unittest.TestCase):
         for key in key_list:
             self.assertEqual(s.get_interval(key_list.index(key)+1), key)
 
-    # @unittest.skip('check that previsou test succeeds')
+    @unittest.skip('check that previsou test succeeds')
     def test_bad_interval(self):
         s = Scale()
         with self.assertRaises(AssertionError):
             s.get_interval(9)
 
-    @unittest.skip('this is not implemented yet')
     def test_bad_root(self):
         # s = Scale('2')
         with self.assertRaises(BadRootError):
-            s = Scale(root='2')
+            s = Scale()
 
     @unittest.skip('this is not implemented yet')
     def test_bad_scale(self):
