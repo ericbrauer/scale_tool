@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 import sys
-import getopt
 
 # TODO: Coming back to it months later.. tried to run cli.py. Move getopts stuff to cli.py
 # TODO: Could we use a generator for something?
 # TODO: btw, all tests failed.
 # TODO: look into linked list for a possible data structure, instead appending a piece at a time
+
 
 class BadRootError(ValueError):
     """the note you defined is not part of the Western Scale"""
@@ -50,35 +50,33 @@ class Scale:
     def __init__(self, **kwargs):
         "verify args, run methods to get scale"
         if 'root' in kwargs.keys():
-            root = kwargs['root'].upper()
-        else:
-            root = 'C'
+            try:
+                self.root = self.verify_input_root(kwargs['root'])
+            except BadRootError:
+                # after some thought, this should stop. Have a default root in cli.py
+                print("init has failed")
         if 'scale_name' in kwargs.keys():
-            scale_name = kwargs['scale_name'].lower()
-        else:
-            scale_name = 'major'
-        self.verify_input(root, scale_name)
-        # TODO: the constructor should do ABSOLUTE MINIMUM so that I can
-        # get to the point of testing INDIVIDUAL METHODS ffs
-        # hahahahah, it's all good :)
-        # self.get_scale_notes()
+            try:
+                self.scale_name = self.verify_input_scale(kwargs['scale_name'])
+            except BadScaleError:
+                print("init has failed")
 
-    def verify_input(self, root, scale_name):
+    def verify_input_root(self, root):
+        "verify that root specified is valid"
+        root = root.upper()
+        if root not in self.all_notes:
+            raise BadRootError(root)
+        else:
+            return root
+
+    def verify_input_scale(self, scale_name):
         "make sure input is valid, set variables to object"
-        try:
-            if root in self.all_notes:
-                    self.root = root
-                    self.chromatic_scale = self.get_chromatic_scale(root)
-            else:
-                raise BadRootError(root)
-            if scale_name in self.valid_scales.keys():
-                self.scale_name = scale_name
-                self.scale = self.valid_scales[scale_name]
-            else:
-                raise BadScaleError(scale_name)
-        except (BadRootError, BadScaleError):
-            print("Input Verification has failed")
-            raise
+        scale_name = scale_name.lower()
+        if scale_name in self.valid_scales.keys():
+            self.scale_name = scale_name
+            self.scale = self.valid_scales[scale_name]
+        else:
+            raise BadScaleError(scale_name)
 
     def get_chromatic_scale(self, root):
         "returns a chromatic scale with all twelve semi-tones"
@@ -121,60 +119,3 @@ class Scale:
                                                           self.scale_name,
                                                           interval_note))
         return interval_note
-
-
-def usage():
-    print('Use -h or --help to read this message')
-    print('Use -r or --root= to set a root note for the scale')
-    print('Use -n or --scale_note= to set a type of scale to return')
-
-
-def main(argv):
-    "here's where we handle system arguments in case people wish to use this"
-    "module as a standalone cli tool"
-    try:
-        opts, args = getopt.getopt(argv, "hr:n:", ["help", "root=", "scale_name="])
-        if opts is None: # this  is not working
-            raise getopt.GetoptError
-    except getopt.GetoptError:
-        usage()
-        # Scale.get_valid_scales()
-        sys.exit(1)
-    # try:
-    for opt, arg in opts:
-        if opt in ("-h", "--help"):
-            usage()
-            sys.exit(0)
-        elif opt in ("-r", "--root"):
-            root = str(arg)
-        elif opt in ("-n", "--scale_name"):
-            scale_name = str(arg)
-        else:
-            print('use -h for help')
-            sys.exit(1)
-    # except BadRootError:
-    # TODO: no catch of no root variable here.
-
-    try:
-        # ok, problem here. if root is set in options, I want it passed to init.
-        # But if not, it shouldn't be passed.
-        # this is... overloading? Check the old C++ book maybe.
-        s = Scale(root=root, scale_name=scale_name)
-        print(s.get_scale_notes())
-        sys.exit(0)
-    except BadRootError:
-        print('Error: the root you entered was not valid.')
-        print('Acceptable root notes are any of the following: ')
-        for note in Scale.get_all_notes():
-            print(note)
-        sys.exit(2)
-    except BadScaleError:
-        print('Error: we didn\'t recognize the scale you specified.')
-        print('Acceptable scales include any of the following: ')
-        for scale in Scale.get_valid_scales():
-            print(scale)
-        sys.exit(2)
-
-
-if __name__ == '__main__':
-    main(sys.argv[1:])
