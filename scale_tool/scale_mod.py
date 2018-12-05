@@ -6,7 +6,6 @@ import getopt
 # TODO: Coming back to it months later.. tried to run cli.py. Move getopts stuff to cli.py
 # TODO: Could we use a generator for something?
 # TODO: btw, all tests failed.
-# TODO: put unit tests here, in if __main__ etc. Refer to data structs book for guidance
 # TODO: look into linked list for a possible data structure, instead appending a piece at a time
 
 class BadRootError(ValueError):
@@ -59,6 +58,10 @@ class Scale:
         else:
             scale_name = 'major'
         self.verify_input(root, scale_name)
+        # TODO: the constructor should do ABSOLUTE MINIMUM so that I can
+        # get to the point of testing INDIVIDUAL METHODS ffs
+        # hahahahah, it's all good :)
+        # self.get_scale_notes()
 
     def verify_input(self, root, scale_name):
         "make sure input is valid, set variables to object"
@@ -71,14 +74,13 @@ class Scale:
             if scale_name in self.valid_scales.keys():
                 self.scale_name = scale_name
                 self.scale = self.valid_scales[scale_name]
-                self.get_scale_notes()
             else:
                 raise BadScaleError(scale_name)
         except (BadRootError, BadScaleError):
-            # print("something is wrong")
+            print("Input Verification has failed")
             raise
 
-    def get_chromatic_scale(self, root='c'):
+    def get_chromatic_scale(self, root):
         "returns a chromatic scale with all twelve semi-tones"
         x = self.all_notes.index(root)
         new_notes = self.all_notes[x:]
