@@ -2,6 +2,7 @@
 
 import sys
 
+
 class BadRootError(ValueError):
     """the note you defined is not part of the Western Scale"""
     def __init__(self, root, *args):
@@ -26,7 +27,7 @@ class Scale:
     scale. Defining a scale that hasn't been implemented (or a root note that
     isn't between A and G#) will raise custom exceptions defined above.
     """
-    
+
     valid_scales = {
         'major':        [0, 1, 1, 0.5, 1, 1, 1, 0.5],
         'ionian':       [0, 1, 1, 0.5, 1, 1, 1, 0.5],
@@ -43,20 +44,19 @@ class Scale:
         """
         An individual note.
         """
-        
+
         sharp_notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
-                 'A', 'A#', 'B']
-    
+                       'A', 'A#', 'B']
+
         flat_notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab',
-                 'A', 'Bb', 'B']
+                      'A', 'Bb', 'B']
 
-        __slots__='_name', '_flat', '_next'
+        __slots__ = '_name', '_flat', '_next'
 
-        def __init__(self, name, next):  
+        def __init__(self, name, next):
             self._name = name
             self._flat = self.flat_notes(self.sharp_notes.index(name))
             self._next = next
-
 
     def __init__(self, **kwargs):
         "verify args, run methods to get scale"
@@ -64,8 +64,8 @@ class Scale:
             self.root = self.verify_input_root(kwargs['root'])
         if 'scale_name' in kwargs.keys():
             self.scale_name = self.verify_input_scale(kwargs['scale_name'])
-        self._tail=None
-        self._size=0
+        self._tail = None
+        self._size = 0
 
     def __len__(self):
         return self._size
@@ -82,28 +82,27 @@ class Scale:
     def dequeue(self):
         if self.is_empty():
             raise Empty('Queue is empty')
-        oldhead=self._tail._next
+        oldhead = self._tail._next
         if self._size == 1:
             self._tail = None
         else:
-            self._tail._next=oldhead._next
-            self._size-=1
+            self._tail._next = oldhead._next
+            self._size -= 1
             return oldhead._name
 
     def enqueue(self, e):
-        newest=self._Note(e, None)
+        newest = self._Note(e, None)
         if self.is_empty():
-            newest._next=newest
+            newest._next = newest
         else:
-            newest._next=self._tail._next
-            self._tail._next=newest
-        self._tail=newest
-        self._size+=1
+            newest._next = self._tail._next
+            self._tail._next = newest
+        self._tail = newest
+        self._size += 1
 
     def rotate(self):
         if self._size > 0:
             self._tail = self._tail._next
-            
 
     def verify_input_root(self, root):
         "verify that root specified is valid"
