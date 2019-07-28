@@ -28,16 +28,24 @@ class Scale:
     isn't between A and G#) will raise custom exceptions defined above.
     """
 
+    sharp_notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
+                   'A', 'A#', 'B']
+
+    flat_notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab',
+                  'A', 'Bb', 'B']
+
     valid_scales = {
-        'major':        [0, 1, 1, 0.5, 1, 1, 1, 0.5],
-        'ionian':       [0, 1, 1, 0.5, 1, 1, 1, 0.5],
-        'dorian':       [0, 1, 0.5, 1, 1, 1, 0.5, 1],
-        'phrygian':     [0, 0.5, 1, 1, 1, 0.5, 1, 1],
-        'lydian':       [0, 1, 1, 1, 0.5, 1, 1, 0.5],
-        'mixolydian':   [0, 1, 1, 0.5, 1, 1, 0.5, 1],
-        'aeolian':      [0, 1, 0.5, 1, 1, 0.5, 1, 1],
-        'minor':        [0, 1, 0.5, 1, 1, 0.5, 1, 1],
-        'locrian':      [0, 0.5, 1, 1, 0.5, 1, 1, 1],
+        'major':            [0, 1, 1, 0.5, 1, 1, 1, 0.5],
+        'ionian':           [0, 1, 1, 0.5, 1, 1, 1, 0.5],
+        'dorian':           [0, 1, 0.5, 1, 1, 1, 0.5, 1],
+        'phrygian':         [0, 0.5, 1, 1, 1, 0.5, 1, 1],
+        'lydian':           [0, 1, 1, 1, 0.5, 1, 1, 0.5],
+        'mixolydian':       [0, 1, 1, 0.5, 1, 1, 0.5, 1],
+        'aeolian':          [0, 1, 0.5, 1, 1, 0.5, 1, 1],
+        'minor':            [0, 1, 0.5, 1, 1, 0.5, 1, 1],
+        'locrian':          [0, 0.5, 1, 1, 0.5, 1, 1, 1],
+        'harmonic minor':   [0, 1, 0.5, 1, 1, 0.5, 1.5, 1],
+        'melodic minor':    [0, 1, 0.5, 1, 1, 1, 1, 1] # TODO: verify this one.
         }
 
     class _Note:
@@ -45,25 +53,24 @@ class Scale:
         An individual note.
         """
 
-        sharp_notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
-                       'A', 'A#', 'B']
-
-        flat_notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab',
-                      'A', 'Bb', 'B']
 
         __slots__ = '_name', '_flat', '_next'
 
         def __init__(self, name, next):
             self._name = name
-            self._flat = self.flat_notes(self.sharp_notes.index(name))
+            # self._flat = self.flat_notes(self.sharp_notes.index(name)) TODO: reimplement this.
             self._next = next
 
     def __init__(self, **kwargs):
         "verify args, run methods to get scale"
         if 'root' in kwargs.keys():
             self.root = self.verify_input_root(kwargs['root'])
+        else:
+            self.root = 'C'
         if 'scale_name' in kwargs.keys():
             self.scale_name = self.verify_input_scale(kwargs['scale_name'])
+        else:
+            self.scale_name = 'major'
         self._tail = None
         self._size = 0
 
