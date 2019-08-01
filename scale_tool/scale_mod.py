@@ -3,10 +3,12 @@
 import sys
 import getopt
 
-# TODO: Coming back to it months later.. tried to run cli.py. Move getopts stuff to cli.py
 # TODO: Could we use a generator for something?
-# TODO: btw, all tests failed.
-# TODO: look into linked list for a possible data structure, instead appending a piece at a time
+# TODO: minimize init functions
+# TODO: module should only raise errors, handle in cli.py
+# TODO: function that returns a repeating set on notes, specified in args
+# TODO: interval should return only index int
+# TODO: implement flats as variation
 
 class BadRootError(ValueError):
     """the note you defined is not part of the Western Scale"""
