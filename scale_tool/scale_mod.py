@@ -61,7 +61,7 @@ class Scale:
         # TODO: the constructor should do ABSOLUTE MINIMUM so that I can
         # get to the point of testing INDIVIDUAL METHODS ffs
         # hahahahah, it's all good :)
-        # self.get_scale_notes()
+        self.scale=self.get_scale_notes()
 
     def verify_input(self, root, scale_name):
         "make sure input is valid, set variables to object"

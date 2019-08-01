@@ -10,7 +10,7 @@ class Test(unittest.TestCase):
     def test_chromatic_scale(self):
         s = Scale()
         self.assertEqual(s.get_chromatic_scale('C'), ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
-                     'A', 'A#', 'B'])
+                     'A', 'A#', 'B', 'C'])
 
     def test_c_maj(self):
         s = Scale()
