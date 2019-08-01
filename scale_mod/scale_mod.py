@@ -114,7 +114,7 @@ class Scale:
     def verify_input_root(self, root):
         "verify that root specified is valid"
         root = root.upper()
-        if root not in self.all_notes:
+        if root not in self.sharp_notes:
             raise BadRootError(root)
         else:
             return root
@@ -130,21 +130,27 @@ class Scale:
 
     def get_chromatic_scale(self):
         "returns a chromatic scale with all twelve semi-tones"
-        x = self.all_notes.index(self.root)
-        new_notes = self.all_notes[x:]
-        for note in self.all_notes[:x]:
-            new_notes.append(note)
-        # new_notes.append(self.all_notes[x])
+        x = self.sharp_notes.index(self.root)
+        new_notes = self.sharp_notes[x:]
+        
+        for note in self.sharp_notes[:x]:
+        #    self.enqueue(note)
+            new_notes.append(self.sharp_notes[x])
         return new_notes
 
-    def get_scale_notes(self):
+    def set_scale_notes(self):
         "returns a list of notes in the defined scale"
         element = 0
         scale_notes = []
         for index in range(len(self.scale)):
             element = int(element + (self.scale[index] * 2))
-            scale_notes.append(self.chromatic_scale[element])
-        return scale_notes
+            self.enqueue(self.get_chromatic_scale[element])
+            # scale_notes.append(self.chromatic_scale[element])
+        # return scale_notes
+
+    def get_scale_notes(self):
+        self.set_scale_notes()
+
 
     @classmethod
     def get_valid_scales(cls):
