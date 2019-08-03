@@ -8,7 +8,7 @@ import getopt
 # TODO: module should only raise errors, handle in cli.py
 # TODO: function that returns a repeating set on notes, specified in args
 # TODO: interval should return only index int
-# TODO: implement flats as variation
+# TODO: so what if we implemented a dict, where the key is the interval (1,2,5, etc.) and the value is the note?
 
 class BadRootError(ValueError):
     """the note you defined is not part of the Western Scale"""
@@ -37,6 +37,12 @@ class Scale:
 
     all_notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
                  'A', 'A#', 'B']
+
+    flat_notes = {'C': 'C', 'C#': 'Db', 'D': 'D', 'D#':'Eb', 'E':'E',
+                  'F':'F', 'F#':'Gb', 'G':'G', 'G#':'Ab', 'A':'A', 'A#':'Bb', 'B':'B'}
+
+    scale_notes = []
+
     valid_scales = {
         'major':        [0, 1, 1, 0.5, 1, 1, 1, 0.5],
         'ionian':       [0, 1, 1, 0.5, 1, 1, 1, 0.5],
@@ -51,36 +57,16 @@ class Scale:
 
     def __init__(self, **kwargs):
         "verify args, run methods to get scale"
-        if 'root' in kwargs.keys():
-            root = kwargs['root'].upper()
-        else:
-            root = 'C'
-        if 'scale_name' in kwargs.keys():
-            scale_name = kwargs['scale_name'].lower()
-        else:
-            scale_name = 'major'
-        self.verify_input(root, scale_name)
-        # TODO: the constructor should do ABSOLUTE MINIMUM so that I can
-        # get to the point of testing INDIVIDUAL METHODS ffs
-        # hahahahah, it's all good :)
-        self.scale=self.get_scale_notes()
-
-    def verify_input(self, root, scale_name):
-        "make sure input is valid, set variables to object"
         try:
-            if root in self.all_notes:
-                    self.root = root
-                    self.chromatic_scale = self.get_chromatic_scale(root)
-            else:
-                raise BadRootError(root)
-            if scale_name in self.valid_scales.keys():
-                self.scale_name = scale_name
-                self.scale = self.valid_scales[scale_name]
-            else:
-                raise BadScaleError(scale_name)
-        except (BadRootError, BadScaleError):
-            print("Input Verification has failed")
-            raise
+            self.root = kwargs['root'].upper()
+            assert self.root in self.all_notes
+        except:
+            raise BadRootError
+        try:
+            self.scale_name = kwargs['scale_name'].lower()
+            assert self.scale_name in self.valid_scales.keys()
+        except:
+            raise BadScaleError
 
     def get_chromatic_scale(self, root):
         "returns a chromatic scale with all twelve semi-tones"
@@ -99,6 +85,15 @@ class Scale:
             element = int(element + (self.scale[index] * 2))
             scale_notes.append(self.chromatic_scale[element])
         return scale_notes
+
+    def get_flat_note(self, note):
+        return self.flat_notes[note]
+
+    def get_flat_scale(self, scale_notes):
+        flat_scale = []
+        for element in scale_notes:
+            flat_scale.append(self.get_flat_note(element))
+        return flat_scale
 
     @classmethod
     def get_valid_scales(cls):

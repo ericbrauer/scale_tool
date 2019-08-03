@@ -58,6 +58,11 @@ class Test(unittest.TestCase):
         s = Scale(root='d', scale_name='LOCRIAN')
         self.assertEqual(s.scale, correct)
 
+    def test_flat_scale(self):
+        correct = ['D', 'Eb', 'F', 'G', 'Ab', 'Bb', 'C', 'D']
+        s = Scale(root='d', scale_name='LOCRIAN')
+        self.assertEquals(s.flat_notes(s.get_scale_notes()), correct)
+
     @unittest.skip('this is not implemented yet')
     def test_finer_adjustment(self):
         "the concept behind is to be able to set dominant, diminished, natural intervals"
