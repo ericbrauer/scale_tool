@@ -8,6 +8,11 @@ import getopt
 # TODO: interval should return only index int
 # TODO: so what if we implemented a dict, where the key is the interval (1,2,5, etc.) and the value is the note?
 
+class NoRootError(ValueError):
+    def __init__(self, *args):
+        self.message = 'please define a root note to start from.'
+        super(NoRootError, self).__init__(self.message, *args)
+
 class BadRootError(ValueError):
     """the note you defined is not part of the Western Scale"""
     def __init__(self, root, *args):
@@ -56,16 +61,22 @@ class Scale:
     def __init__(self, **kwargs):
         "verify args, run methods to get scale"
         try:
+            assert 'root' in kwargs.keys()
+        except:
+            raise NoRootError
+        try:
             self.root = kwargs['root'].upper()
             assert self.root in self.all_notes
         except:
-            raise BadRootError
+            raise BadRootError(self.root)
+        if 'scale_name' not in kwargs.keys():
+            raise BadScaleError('You must specify a scale name to proceed')
         try:
             self.scale_name = kwargs['scale_name'].lower()
             assert self.scale_name in self.valid_scales.keys()
             self.scale = self.valid_scales[self.scale_name]
         except:
-            raise BadScaleError
+            raise BadScaleError(self.scale_name)
         self.set_chromatic_scale(self.root)
 
     def set_chromatic_scale(self, root):

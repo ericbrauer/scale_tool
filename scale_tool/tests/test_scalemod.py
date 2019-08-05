@@ -2,7 +2,7 @@
 import sys
 import unittest as unittest
 sys.path.append('../')
-from scale_mod import Scale, BadRootError, BadScaleError
+from scale_mod import Scale, NoRootError, BadRootError, BadScaleError
 
 
 class Test(unittest.TestCase):
