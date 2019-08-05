@@ -4,8 +4,6 @@ import sys
 import getopt
 
 # TODO: Could we use a generator for something?
-# TODO: minimize init functions
-# TODO: module should only raise errors, handle in cli.py
 # TODO: function that returns a repeating set on notes, specified in args
 # TODO: interval should return only index int
 # TODO: so what if we implemented a dict, where the key is the interval (1,2,5, etc.) and the value is the note?
@@ -65,17 +63,19 @@ class Scale:
         try:
             self.scale_name = kwargs['scale_name'].lower()
             assert self.scale_name in self.valid_scales.keys()
+            self.scale = self.valid_scales[self.scale_name]
         except:
             raise BadScaleError
+        self.set_chromatic_scale(self.root)
 
-    def get_chromatic_scale(self, root):
+    def set_chromatic_scale(self, root):
         "returns a chromatic scale with all twelve semi-tones"
         x = self.all_notes.index(root)
         new_notes = self.all_notes[x:]
         for note in self.all_notes[:x]:
             new_notes.append(note)
         new_notes.append(self.all_notes[x])
-        return new_notes
+        self.chromatic_scale = new_notes
 
     def get_scale_notes(self):
         "returns a list of notes in the defined scale"
