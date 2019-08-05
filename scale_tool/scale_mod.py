@@ -88,6 +88,10 @@ class Scale:
         new_notes.append(self.all_notes[x])
         self.chromatic_scale = new_notes
 
+    def get_chromatic_scale(self):
+        return self.chromatic_scale
+
+
     def get_scale_notes(self):
         "returns a list of notes in the defined scale"
         element = 0
@@ -100,9 +104,9 @@ class Scale:
     def get_flat_note(self, note):
         return self.flat_notes[note]
 
-    def get_flat_scale(self, scale_notes):
+    def get_flat_scale(self):
         flat_scale = []
-        for element in scale_notes:
+        for element in self.get_scale_notes():
             flat_scale.append(self.get_flat_note(element))
         return flat_scale
 
