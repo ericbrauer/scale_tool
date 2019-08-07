@@ -27,14 +27,28 @@ class Fretboard:
         for note in (self.tuning):
             print("{0:^4}".format(note), end="")
         print()
-        marker=" "
-        for i, note in enumerate(self.tuning):
-            if i == 0:
-                print("{0:>4}\u250d".format(marker), end="")
-            if i == (len(self.tuning)-1):
-                print('{:\u2501>4}'.format('\u2511'))
+        for y in range(self.scale_length):
+            if y in [0, 3, 5, 7, 9, 12]:
+                marker = y
             else:
-                print('\u2501\u2501\u2501\u252f', end="")
+                maker = " "
+            if y == 0:
+                for x, note in enumerate(self.tuning):
+                    if x == 0:
+                        print("{0:>4}\u250d".format(marker), end="")
+                    if x == (len(self.tuning)-1):
+                        print('{:\u2501>4}'.format(self.zero_fret[3]))
+                    else:
+                        print('{:\u2501>4}'.format(self.zero_fret[2]), end="")
+            else:
+                for x, note in enumerate(self.tuning):
+                    if x == 0:
+                        print("{0:>4}├".format(marker), end="")
+                    if x == (len(self.tuning)-1):
+                        print('{:─>4}'.format(self.normal_fret[3]))
+                    else:
+                        print('{:─>4}'.format(self.normal_fret[2]), end="")
+
         
 
 if __name__ == '__main__':
