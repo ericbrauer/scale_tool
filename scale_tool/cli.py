@@ -31,7 +31,7 @@ class Fretboard:
             if y in [0, 3, 5, 7, 9, 12]:
                 marker = y
             else:
-                maker = " "
+                marker = " "
             if y == 0:
                 for x, note in enumerate(self.tuning):
                     if x == 0:
