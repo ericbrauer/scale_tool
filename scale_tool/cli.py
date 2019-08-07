@@ -7,6 +7,9 @@ class Fretboard:
     This will be written to the terminal for now. Maybe graphics eventually.
     """
 
+    zero_fret = ['┍', '━', '┯', '┑']
+    normal_fret = ['├', '─', '┼', '┤']
+
     def __init__(self, **kwargs):
         try:
             assert 'tuning' in kwargs.keys()
@@ -27,9 +30,9 @@ class Fretboard:
         marker=" "
         for i, note in enumerate(self.tuning):
             if i == 0:
-                print("{0:4}\u250d".format(marker), end="")
+                print("{0:>4}\u250d".format(marker), end="")
             if i == (len(self.tuning)-1):
-                print('\u2501\u2501\u2501\u2511')
+                print('{:\u2501>4}'.format('\u2511'))
             else:
                 print('\u2501\u2501\u2501\u252f', end="")
         
