@@ -41,30 +41,30 @@ class Fretboard:
                     else:
                         print('{:\u2501>4}'.format(self.zero_fret[2]), end="")
             else:
+                # create space
                 for x, note in enumerate(self.tuning):
-                    # create space
                     if x == 0:
                         print("{0:>4}│".format(" "), end="")
                     if x == (len(self.tuning)-1):
                         print('{:>4}'.format(self.normal_fret[4]))
                     else:
                         print('{:>4}'.format(self.normal_fret[4]), end="")
+                # create note 
                 for x, note in enumerate(self.tuning):
-                    # create fret
                     if x == 0:
-                        print("{0:>4}├".format(marker), end="")
+                        print("{0:>4}│".format(marker), end="")
+                    if x == (len(self.tuning)-1):
+                        print('{:^3}{}'.format(note, self.normal_fret[4]))
+                    else:
+                        print('{:^3}{}'.format(note, self.normal_fret[4]), end="")
+                # create fret
+                for x, note in enumerate(self.tuning):
+                    if x == 0:
+                        print("{0:>4}├".format(" "), end="")
                     if x == (len(self.tuning)-1):
                         print('{:─>4}'.format(self.normal_fret[3]))
                     else:
                         print('{:─>4}'.format(self.normal_fret[2]), end="")
-                for x, note in enumerate(self.tuning):
-                    # create space
-                    if x == 0:
-                        print("{0:>4}│".format(" "), end="")
-                    if x == (len(self.tuning)-1):
-                        print('{:>4}'.format(self.normal_fret[4]))
-                    else:
-                        print('{:>4}'.format(self.normal_fret[4]), end="")
 
         
 
