@@ -8,7 +8,7 @@ class Fretboard:
     """
 
     zero_fret = ['┍', '━', '┯', '┑']
-    normal_fret = ['├', '─', '┼', '┤']
+    normal_fret = ['├', '─', '┼', '┤', '│']
 
     def __init__(self, **kwargs):
         try:
@@ -42,15 +42,32 @@ class Fretboard:
                         print('{:\u2501>4}'.format(self.zero_fret[2]), end="")
             else:
                 for x, note in enumerate(self.tuning):
+                    # create space
+                    if x == 0:
+                        print("{0:>4}│".format(" "), end="")
+                    if x == (len(self.tuning)-1):
+                        print('{:>4}'.format(self.normal_fret[4]))
+                    else:
+                        print('{:>4}'.format(self.normal_fret[4]), end="")
+                for x, note in enumerate(self.tuning):
+                    # create fret
                     if x == 0:
                         print("{0:>4}├".format(marker), end="")
                     if x == (len(self.tuning)-1):
                         print('{:─>4}'.format(self.normal_fret[3]))
                     else:
                         print('{:─>4}'.format(self.normal_fret[2]), end="")
+                for x, note in enumerate(self.tuning):
+                    # create space
+                    if x == 0:
+                        print("{0:>4}│".format(" "), end="")
+                    if x == (len(self.tuning)-1):
+                        print('{:>4}'.format(self.normal_fret[4]))
+                    else:
+                        print('{:>4}'.format(self.normal_fret[4]), end="")
 
         
 
 if __name__ == '__main__':
-    guitar = Fretboard(tuning=['Eb', 'A', 'D', 'G', 'B', 'E'], scale_length=12)
+    guitar = Fretboard(tuning=['Eb', 'A', 'D', 'G', 'B', 'E'], scale_length=13)
     guitar.draw_fretboard()
