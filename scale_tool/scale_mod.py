@@ -2,16 +2,19 @@
 
 import sys
 import getopt
+from typing import get_args
 
 # TODO: Could we use a generator for something?
 # TODO: function that returns a repeating set on notes, specified in args
 # TODO: interval should return only index int
 # TODO: so what if we implemented a dict, where the key is the interval (1,2,5, etc.) and the value is the note?
 
+
 class NoRootError(ValueError):
     def __init__(self, *args):
         self.message = 'please define a root note to start from.'
         super(NoRootError, self).__init__(self.message, *args)
+
 
 class BadRootError(ValueError):
     """the note you defined is not part of the Western Scale"""
@@ -42,7 +45,7 @@ class Scale:
                  'A', 'A#', 'B']
 
     flat_notes = {'C': 'C', 'C#': 'Db', 'D': 'D', 'D#':'Eb', 'E':'E',
-                  'F':'F', 'F#':'Gb', 'G':'G', 'G#':'Ab', 'A':'A', 'A#':'Bb', 'B':'B'}
+                'F':'F', 'F#':'Gb', 'G':'G', 'G#':'Ab', 'A':'A', 'A#':'Bb', 'B':'B'}
 
     scale_notes = []
 
@@ -79,6 +82,7 @@ class Scale:
             raise BadScaleError(self.scale_name)
         self.set_chromatic_scale(self.root)
 
+
     def set_chromatic_scale(self, root):
         "returns a chromatic scale with all twelve semi-tones"
         x = self.all_notes.index(root)
@@ -88,18 +92,49 @@ class Scale:
         new_notes.append(self.all_notes[x])
         self.chromatic_scale = new_notes
 
-    def get_chromatic_scale(self):
-        return self.chromatic_scale
-
+    def get_chromatic_scale(self, first_note):
+        x = self.all_notes.index(first_note)
+        new_notes = self.all_notes[x:]
+        for note in self.all_notes[:x]:
+            new_notes.append(note)
+        new_notes.append(self.all_notes[x])
+        return new_notes
 
     def get_scale_notes(self):
         "returns a list of notes in the defined scale"
+        if self.scale_name == "chromatic":
+            return self.chromatic_scale
         element = 0
         scale_notes = []
         for index in range(len(self.scale)):
             element = int(element + (self.scale[index] * 2))
             scale_notes.append(self.chromatic_scale[element])
         return scale_notes
+
+    def get_sc_notes_with_blanks(self):
+        "same as get_sc_notes_but has empty elements for notes not in scale"
+        sc_notes = self.get_scale_notes()
+        chr_notes = self.get_chromatic_scale()
+        rtrn = []
+        for i in chr_notes:
+            if i in sc_notes:
+                rtrn.append(i)
+            else:
+                rtrn.append(None)
+        return rtrn
+
+    def get_next(self, first_note=None):
+        "generator. first arg sets where we start, not root"
+        if first_note is None:
+            first_note = self.root
+        sc_notes = self.get_scale_notes()
+        chr_notes = self.get_chromatic_scale(first_note)
+        while True:
+            for i in chr_notes:
+                if i in sc_notes:
+                    yield i
+                else:
+                    yield None
 
     def get_flat_note(self, note):
         return self.flat_notes[note]
@@ -189,4 +224,6 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    c = Scale(root="C", scale_name="major")
+    print(c.get_scale_notes())
+    print(c.get_sc_notes_with_blanks())

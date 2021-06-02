@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from scale_mod import Scale
 
 
 class Fretboard:
@@ -21,11 +22,18 @@ class Fretboard:
             raise ValueError("Please specify a length of the fretboard in number of frets.")
         self.tuning = kwargs['tuning']
         self.scale_length = kwargs['scale_length']
+        self.scale_name = "major"
+
 
     def draw_fretboard(self):
         print('    ', end="")
-        for note in (self.tuning):
-            print("{0:^4}".format(note), end="")
+        strings = []
+        for note in self.tuning:
+            sc_obj = Scale(root="C", scale_name=self.scale_name)
+            strings.append(sc_obj.get_next(note))  # this is a generator
+# TODO: We haven't built a way to start on a certain non-root note!!
+        for note in strings:
+            print("{0:^4}".format(next(note)), end="")
         print()
         for y in range(self.scale_length):
             if y in [0, 3, 5, 7, 9, 12]:
@@ -33,7 +41,7 @@ class Fretboard:
             else:
                 marker = " "
             if y == 0:
-                for x, note in enumerate(self.tuning):
+                for x, note in enumerate(strings):
                     if x == 0:
                         print("{0:>4}\u250d".format(marker), end="")
                     if x == (len(self.tuning)-1):
@@ -42,32 +50,37 @@ class Fretboard:
                         print('{:\u2501>4}'.format(self.zero_fret[2]), end="")
             else:
                 # create space
-                for x, note in enumerate(self.tuning):
+                for x, note in enumerate(strings):
                     if x == 0:
                         print("{0:>4}│".format(" "), end="")
-                    if x == (len(self.tuning)-1):
+                    if x == (len(strings)-1):
                         print('{:>4}'.format(self.normal_fret[4]))
                     else:
                         print('{:>4}'.format(self.normal_fret[4]), end="")
                 # create note 
-                for x, note in enumerate(self.tuning):
+                for x, note in enumerate(strings):
                     if x == 0:
                         print("{0:>4}│".format(marker), end="")
-                    if x == (len(self.tuning)-1):
-                        print('{:^3}{}'.format(note, self.normal_fret[4]))
+                    if x == (len(strings)-1):
+                        out = next(note)
+                        if out is None:
+                            out = " "
+                        print('{:^3}{}'.format(out, self.normal_fret[4]))
                     else:
-                        print('{:^3}{}'.format(note, self.normal_fret[4]), end="")
+                        out = next(note)
+                        if out is None:
+                            out = " "
+                        print('{:^3}{}'.format(out, self.normal_fret[4]), end="")
                 # create fret
-                for x, note in enumerate(self.tuning):
+                for x, note in enumerate(strings):
                     if x == 0:
                         print("{0:>4}├".format(" "), end="")
-                    if x == (len(self.tuning)-1):
+                    if x == (len(strings)-1):
                         print('{:─>4}'.format(self.normal_fret[3]))
                     else:
                         print('{:─>4}'.format(self.normal_fret[2]), end="")
 
-        
 
 if __name__ == '__main__':
-    guitar = Fretboard(tuning=['Eb', 'A', 'D', 'G', 'B', 'E'], scale_length=13)
+    guitar = Fretboard(tuning=['E', 'A', 'D', 'G', 'B', 'E'], scale_length=13)  # haha, flats cause bad root error!
     guitar.draw_fretboard()
