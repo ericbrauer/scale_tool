@@ -22,7 +22,7 @@ class Fretboard:
             raise ValueError("Please specify a length of the fretboard in number of frets.")
         self.tuning = kwargs['tuning']
         self.scale_length = kwargs['scale_length']
-        self.scale_name = "major"
+        self.scale_name = "minor"
 
 
     def draw_fretboard(self):
@@ -33,7 +33,10 @@ class Fretboard:
             strings.append(sc_obj.get_next(note))  # this is a generator
 # TODO: We haven't built a way to start on a certain non-root note!!
         for note in strings:
-            print("{0:^4}".format(next(note)), end="")
+            out = next(note)
+            if out is None:
+                out = " "
+            print("{0:^4}".format(out), end="")
         print()
         for y in range(self.scale_length):
             if y in [0, 3, 5, 7, 9, 12]:
@@ -82,5 +85,5 @@ class Fretboard:
 
 
 if __name__ == '__main__':
-    guitar = Fretboard(tuning=['E', 'A', 'D', 'G', 'B', 'E'], scale_length=13)  # haha, flats cause bad root error!
+    guitar = Fretboard(tuning=['D', 'A', 'D', 'G', 'B', 'E'], scale_length=13)  # haha, flats cause bad root error!
     guitar.draw_fretboard()
