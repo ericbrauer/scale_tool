@@ -4,10 +4,12 @@ import sys
 import getopt
 from typing import get_args
 
-# TODO: Could we use a generator for something?
-# TODO: function that returns a repeating set on notes, specified in args
 # TODO: interval should return only index int
 # TODO: so what if we implemented a dict, where the key is the interval (1,2,5, etc.) and the value is the note?
+
+'''
+Found later: https://www.mvanga.com/blog/basic-music-theory-in-200-lines-of-python
+'''
 
 
 class NoRootError(ValueError):
@@ -41,11 +43,11 @@ class Scale:
     isn't between A and G#) will raise custom exceptions defined above.
     """
 
-    all_notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
-                 'A', 'A#', 'B']
+    sharp_notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
+                   'A', 'A#', 'B']
 
-    flat_notes = {'C': 'C', 'C#': 'Db', 'D': 'D', 'D#':'Eb', 'E':'E',
-                'F':'F', 'F#':'Gb', 'G':'G', 'G#':'Ab', 'A':'A', 'A#':'Bb', 'B':'B'}
+    flat_notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 
+                  'A', 'Bb', 'B']
 
     scale_notes = []
 
@@ -65,12 +67,12 @@ class Scale:
         "verify args, run methods to get scale"
         try:
             assert 'root' in kwargs.keys()
-        except:
+        except AssertionError:
             raise NoRootError
         try:
-            self.root = kwargs['root'].upper()
-            assert self.root in self.all_notes
-        except:
+            self.root = kwargs['root']
+            assert self.root in self.flat_notes, self.sharp_notes
+        except AssertionError:
             raise BadRootError(self.root)
         if 'scale_name' not in kwargs.keys():
             raise BadScaleError('You must specify a scale name to proceed')
@@ -78,21 +80,23 @@ class Scale:
             self.scale_name = kwargs['scale_name'].lower()
             assert self.scale_name in self.valid_scales.keys()
             self.scale = self.valid_scales[self.scale_name]
-        except:
+        except AssertionError:
             raise BadScaleError(self.scale_name)
+        if 'b' in self.root:
+            self.all_notes = self.flat_notes
+        else:
+            self.all_notes = self.sharp_notes
         self.set_chromatic_scale(self.root)
 
-
-    def set_chromatic_scale(self, root):
+    def set_chromatic_scale(self, root=None):
         "returns a chromatic scale with all twelve semi-tones"
-        x = self.all_notes.index(root)
-        new_notes = self.all_notes[x:]
-        for note in self.all_notes[:x]:
-            new_notes.append(note)
-        new_notes.append(self.all_notes[x])
-        self.chromatic_scale = new_notes
+        if root is None:
+            root = self.root
+        self.chromatic_scale = self.get_chromatic_scale(root)
 
-    def get_chromatic_scale(self, first_note):
+    def get_chromatic_scale(self, first_note=None):
+        if first_note is None:
+            first_note = self.root
         x = self.all_notes.index(first_note)
         new_notes = self.all_notes[x:]
         for note in self.all_notes[:x]:
