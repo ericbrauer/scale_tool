@@ -102,6 +102,13 @@ class Scale:
     scales = {
         'major':        [0, 1, 1, 0.5, 1, 1, 1, 0.5],
         'minor':        [0, 1, 0.5, 1, 1, 0.5, 1, 1],
+        'melodic_minor': [0, 1, 0.5, 0.5, 1, 1, 1, 0.5],
+        'harmonic_minor': [0, 1, 0.5, 0.5, 1, 1, 0.5, 0.5],
+        'major_blues': [0, 1, 0.5, 0.5, 1.5, 1, 1.5],
+        #'minor_blues':
+        'pentatonic_major': [0, 1, 1, 0.5, 1.5, 1, 1.5]
+        #'pentatonic_minor':
+        # 'pentatonic_blues': 
         }
 
     modes = {
