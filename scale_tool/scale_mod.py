@@ -43,6 +43,43 @@ class Scale:
     isn't between A and G#) will raise custom exceptions defined above.
     """
 
+    class Note:
+        """
+        This note object should be able to contain its sharp/flat 'aliases' 
+        and hopefully allow more functionality (octaves, interval id?, pitch)
+        in the future.
+        """
+
+        sharps = ['C#', 'D#', 'F#', 'G#', 'A#']
+        flats = ['Db', 'Eb', 'Gb', 'Ab', 'Bb']
+
+        def __init__(self, note):
+            self.note_name = note
+            if note in self.sharps:  # index of sharps to flats should match up
+                self.note_alias = self.flats[self.sharps.index(note)]
+                self.is_sharp = True
+            elif note in self.flats:
+                self.note_alias = self.sharps[self.flats.index(note)]
+                self.is_flat = True
+            else:
+                self.note_alias = note  # C alias is C? might eliminate weirdness
+
+        def __eq__(self, other):
+            "the either the flat or sharp will return True"
+            if self.note_name == other:
+                return True
+            elif self.note_alias == other:
+                temp = self.note_name
+                self.note_name = self.note_alias
+                self.note_alias = temp
+                return True
+            else:
+                return False
+
+        def __str__(self):
+            return self.note_name
+
+
     sharp_notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
                    'A', 'A#', 'B']
 
@@ -65,6 +102,9 @@ class Scale:
 
     def __init__(self, **kwargs):
         "verify args, run methods to get scale"
+        n = Scale.Note('Bb')
+        if 'A#'  == n:
+            print('c note correctly identified.')
         try:
             assert 'root' in kwargs.keys()
         except AssertionError:
