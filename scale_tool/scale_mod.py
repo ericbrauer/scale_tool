@@ -78,7 +78,8 @@ class Scale:
                 return False
 
         def __str__(self):
-            return self.note_name
+            return self.note_name.replace('b', '\u266d') \
+                .replace('#', '\u266f')
         
         #def __format__(self, format):
         #    return self.note_name

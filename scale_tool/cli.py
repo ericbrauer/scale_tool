@@ -22,7 +22,7 @@ class Fretboard:
             raise ValueError("Please specify a length of the fretboard in number of frets.")
         self.tuning = kwargs['tuning']
         self.scale_length = kwargs['scale_length']
-        self.scale_name = "major"
+        self.scale_name = "minor"
 
 
     def draw_fretboard(self):
