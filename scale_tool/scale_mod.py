@@ -53,8 +53,9 @@ class Scale:
         sharps = ['C#', 'D#', 'F#', 'G#', 'A#']
         flats = ['Db', 'Eb', 'Gb', 'Ab', 'Bb']
 
-        def __init__(self, note):
+        def __init__(self, note, index):
             self.note_name = note
+            self.index = int(index)
             if note in self.sharps:  # index of sharps to flats should match up
                 self.note_alias = self.flats[self.sharps.index(note)]
                 self.is_sharp = True
@@ -78,81 +79,109 @@ class Scale:
 
         def __str__(self):
             return self.note_name
+        
+        #def __format__(self, format):
+        #    return self.note_name
+
+        def __index__(self):
+            return self.index
+
+        def set_index(self, num):
+            self.index = int(num)
 
 
-    sharp_notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
+    sharp_notes_str = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
                    'A', 'A#', 'B']
 
-    flat_notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 
+    flat_notes_str = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 
                   'A', 'Bb', 'B']
 
     scale_notes = []
 
-    valid_scales = {
+    scales = {
         'major':        [0, 1, 1, 0.5, 1, 1, 1, 0.5],
+        'minor':        [0, 1, 0.5, 1, 1, 0.5, 1, 1],
+        }
+
+    modes = {
         'ionian':       [0, 1, 1, 0.5, 1, 1, 1, 0.5],
         'dorian':       [0, 1, 0.5, 1, 1, 1, 0.5, 1],
         'phrygian':     [0, 0.5, 1, 1, 1, 0.5, 1, 1],
         'lydian':       [0, 1, 1, 1, 0.5, 1, 1, 0.5],
         'mixolydian':   [0, 1, 1, 0.5, 1, 1, 0.5, 1],
         'aeolian':      [0, 1, 0.5, 1, 1, 0.5, 1, 1],
-        'minor':        [0, 1, 0.5, 1, 1, 0.5, 1, 1],
         'locrian':      [0, 0.5, 1, 1, 0.5, 1, 1, 1]
-        }
+    }
 
     def __init__(self, **kwargs):
         "verify args, run methods to get scale"
-        n = Scale.Note('Bb')
-        if 'A#'  == n:
-            print('c note correctly identified.')
+        # n = Scale.Note('C')
+        # n2 = Scale.Note('D#')
+        # nlist = [n, n2]
+        # if 'C' in nlist:
+        #     print('c note correctly identified.')
         try:
             assert 'root' in kwargs.keys()
         except AssertionError:
             raise NoRootError
         try:
-            self.root = kwargs['root']
-            assert self.root in self.flat_notes, self.sharp_notes
+            self.root = Scale.Note(kwargs['root'], 0)
+            assert self.root in self.flat_notes_str, self.sharp_notes_str
         except AssertionError:
             raise BadRootError(self.root)
         if 'scale_name' not in kwargs.keys():
             raise BadScaleError('You must specify a scale name to proceed')
         try:
             self.scale_name = kwargs['scale_name'].lower()
-            assert self.scale_name in self.valid_scales.keys()
-            self.scale = self.valid_scales[self.scale_name]
+            assert self.scale_name in self.scales.keys()
+            self.scale = self.scales[self.scale_name]
         except AssertionError:
             raise BadScaleError(self.scale_name)
-        if 'b' in self.root:
-            self.all_notes = self.flat_notes
-        else:
-            self.all_notes = self.sharp_notes
-        self.set_chromatic_scale(self.root)
+        self.flat_notes = [Scale.Note(string, -1) for string in self.flat_notes_str]
+        self.sharp_notes = [Scale.Note(string, -1) for string in self.sharp_notes_str]
 
-    def set_chromatic_scale(self, root=None):
-        "returns a chromatic scale with all twelve semi-tones"
-        if root is None:
-            root = self.root
-        self.chromatic_scale = self.get_chromatic_scale(root)
+        self.set_chromatic_scales()
 
-    def get_chromatic_scale(self, first_note=None):
+
+    def set_chromatic_scales(self):
+        self.chr_sc_flats = self.create_chromatic_scale(self.root, 'flat')
+        self.chr_sc_sharps = self.create_chromatic_scale(self.root, 'sharp')
+
+    def get_chromatic_scale(self, first_note=None, fl_sh='sharp'):
+        "returns either flat or sharp variation"
         if first_note is None:
             first_note = self.root
-        x = self.all_notes.index(first_note)
-        new_notes = self.all_notes[x:]
-        for note in self.all_notes[:x]:
-            new_notes.append(note)
-        new_notes.append(self.all_notes[x])
+        first_note_ind = self.chr_sc_sharps.index(first_note)
+        if fl_sh == 'sharp':
+            return self.chr_sc_sharps[first_note_ind:] + self.chr_sc_sharps[:first_note_ind]
+        else:
+            return self.chr_sc_flats[first_note_ind:] + self.chr_sc_flats[:first_note_ind]
+
+    def create_chromatic_scale(self, first_note=None, fl_sh='sharp'):
+        if fl_sh == 'sharp':
+            allnotes = self.sharp_notes
+        else:
+            allnotes = self.flat_notes
+        if first_note is None:
+            first_note = self.root
+        x = allnotes.index(first_note)
+        new_notes = allnotes[x:]
+        for index, note in enumerate(allnotes[:x]):
+            new_notes.append(Scale.Note(note, index))
+        # new_notes.append(Scale.Note(allnotes[x]))
         return new_notes
 
     def get_scale_notes(self):
         "returns a list of notes in the defined scale"
         if self.scale_name == "chromatic":
-            return self.chromatic_scale
+            return self.get_chromatic_scale()
         element = 0
+        chr = self.get_chromatic_scale()
         scale_notes = []
-        for index in range(len(self.scale)):
+        for index in range(len(self.scale)-1):
             element = int(element + (self.scale[index] * 2))
-            scale_notes.append(self.chromatic_scale[element])
+            # chr[element].set_index(index)  # set the index to its position in the scale
+            scale_notes.append(chr[element])
         return scale_notes
 
     def get_sc_notes_with_blanks(self):
@@ -190,9 +219,9 @@ class Scale:
         return flat_scale
 
     @classmethod
-    def get_valid_scales(cls):
+    def get_scales(cls):
         "return the keys of the valid scales dict"
-        return cls.valid_scales.keys()
+        return cls.scales.keys()
 
     @classmethod
     def get_all_notes(cls):
@@ -229,7 +258,7 @@ def main(argv):
             raise getopt.GetoptError
     except getopt.GetoptError:
         usage()
-        # Scale.get_valid_scales()
+        # Scale.get_scales()
         sys.exit(1)
     # try:
     for opt, arg in opts:
@@ -262,7 +291,7 @@ def main(argv):
     except BadScaleError:
         print('Error: we didn\'t recognize the scale you specified.')
         print('Acceptable scales include any of the following: ')
-        for scale in Scale.get_valid_scales():
+        for scale in Scale.get_scales():
             print(scale)
         sys.exit(2)
 
