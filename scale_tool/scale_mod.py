@@ -70,6 +70,7 @@ class Scale:
         def __sub__(self, value):
             "this will increase accidentals to make more flat"
             "1 = a semi-tone"
+            value = abs(value)
             while value > 0:
                 self.accidental += 'b'
                 value -= 1
@@ -176,12 +177,12 @@ class Scale:
             to_add = Scale.Note(note)  # create C
             if score > 0:
                 to_add = to_add + score  # create C# if needed
-                score = 0
+                #score = 0
             elif score < 0:
                 to_add = to_add - score  # create Cb if needed
-                score = 0
+                #score = 1
             self.maj_scale.append(to_add)
-            score = self.maj_formula[i]
+            score += self.maj_formula[i]
             try:
                 next_val = self.notes[i+1]
             except IndexError:
@@ -343,6 +344,6 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    c = Scale(root="C", scale_name="major")
+    c = Scale(root="D", scale_name="major")
     print(c.get_scale_notes())
     print(c.get_sc_notes_with_blanks())
