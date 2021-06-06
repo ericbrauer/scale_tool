@@ -52,7 +52,7 @@ class Scale:
 
         sharps = ['C#', 'D#', 'F#', 'G#', 'A#']
         flats = ['Db', 'Eb', 'Gb', 'Ab', 'Bb']
-        notes = [chr(n) for n in range(ord('A'), ord('G'))]
+        notes = [chr(n) for n in range(ord('A'), ord('H'))]
 
         def __init__(self, note):
             self.note_name = note[0]  # just the letter
@@ -65,6 +65,7 @@ class Scale:
             while value > 0:
                 self.accidental += '#'
                 value -= 1
+            return self
 
         def __sub__(self, value):
             "this will increase accidentals to make more flat"
@@ -72,6 +73,7 @@ class Scale:
             while value > 0:
                 self.accidental += 'b'
                 value -= 1
+            return self
 
         def __eq__(self, other):
             "the either the flat or sharp will return True"
@@ -83,6 +85,9 @@ class Scale:
         def __str__(self):
             return self.note_name + self.accidental.replace('b', '\u266d') \
                 .replace('#', '\u266f')
+
+        def __repr__(self):
+            return self.note_name + self.accidental
 
         # def __index__(self):
         #     return self.index
@@ -99,8 +104,18 @@ class Scale:
 
     scale_notes = []
 
+    notes = [chr(n) for n in range(ord('A'), ord('H'))]
 
 # this way of defining intervals sucks, actually.
+    new_scale = {
+        'major': [1, 2, 3, 4, 5, 6, 7]
+    }
+
+    maj_formula = [2, 2, 1, 2, 2, 2, 1] 
+
+    maj_scale = []
+
+
     scales = {
         'major':        [0, 1, 1, 0.5, 1, 1, 1, 0.5],
         'minor':        [0, 1, 0.5, 1, 1, 0.5, 1, 1],
@@ -138,23 +153,43 @@ class Scale:
         except AssertionError:
             raise NoRootError
         try:
-            self.root = Scale.Note(kwargs['root'], 0)
-            assert self.root in self.flat_notes_str, self.sharp_notes_str
+            self.root = Scale.Note(kwargs['root'])
         except AssertionError:
             raise BadRootError(self.root)
         if 'scale_name' not in kwargs.keys():
             raise BadScaleError('You must specify a scale name to proceed')
         try:
-            self.scale_name = kwargs['scale_name'].lower()
-            assert self.scale_name in self.scales.keys()
-            self.scale = self.scales[self.scale_name]
+            self.scale = kwargs['scale_name']
         except AssertionError:
-            raise BadScaleError(self.scale_name)
-        self.flat_notes = [Scale.Note(string, -1) for string in self.flat_notes_str]
-        self.sharp_notes = [Scale.Note(string, -1) for string in self.sharp_notes_str]
+            raise BadScaleError(self.scale)
+        note_index = self.notes.index(kwargs['root'][0])
+        self.notes = self.notes[note_index:] + self.notes[:note_index]
+        #self.set_chromatic_scales()
+        self.create_major_scale()
 
-        self.set_chromatic_scales()
-
+    def create_major_scale(self):
+        "this will always create a major scale, that can then be modified"
+        scale = self.new_scale['major']  # hardcoded for now
+        intervals = self.maj_formula
+        score = 0
+        for i, note in enumerate(self.notes):
+            to_add = Scale.Note(note)  # create C
+            if score > 0:
+                to_add = to_add + score  # create C# if needed
+                score = 0
+            elif score < 0:
+                to_add = to_add - score  # create Cb if needed
+                score = 0
+            self.maj_scale.append(to_add)
+            score = self.maj_formula[i]
+            try:
+                next_val = self.notes[i+1]
+            except IndexError:
+                next_val = self.notes[0]
+            if next_val in ['C', 'F']:  # going from B to C is only a half step
+                score -= 1
+            else:
+                score -= 2
 
     def set_chromatic_scales(self):
         self.chr_sc_flats = self.create_chromatic_scale(self.root, 'flat')
@@ -186,8 +221,6 @@ class Scale:
 
     def get_scale_notes(self):
         "returns a list of notes in the defined scale"
-        if self.scale_name == "chromatic":
-            return self.get_chromatic_scale()
         element = 0
         chr = self.get_chromatic_scale()
         scale_notes = []
