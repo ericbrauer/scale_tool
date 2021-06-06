@@ -125,25 +125,19 @@ class Scale:
 # this way of defining intervals sucks, actually.
     scales = {
         'major': ['1', '2', '3', '4', '5', '6', '7'],
-        'minor': ['1', '2', 'b3', '4', '5', 'b6', 'b7']
+        'minor': ['1', '2', 'b3', '4', '5', 'b6', 'b7'],
+        'melodic_minor': ['1', '2', 'b3', '4', '5', '6', '7'],
+        'harmonic_minor': ['1', '2', 'b3', '4', '5', 'b6', '7'],
+        'major_blues': ['1', '2', 'b3', '3', '5', '6'],
+        'minor_blues': ['1', 'b3', '4', 'b5', '5', 'b7'],
+        'pentatonic_major': ['1', '2', '3', '5', '6'],
+        'pentatonic_minor': ['1', 'b3', '4', '5', 'b7'],
+        'pentatonic_blues': ['1', 'b3', '4', 'b5', '5', 'b7']
     }
 
     maj_formula = [2, 2, 1, 2, 2, 2, 1] 
 
     maj_scale = []
-
-
-    old_scales = {
-        'major':        [0, 1, 1, 0.5, 1, 1, 1, 0.5],
-        'minor':        [0, 1, 0.5, 1, 1, 0.5, 1, 1],
-        'melodic_minor': [0, 1, 0.5, 0.5, 1, 1, 1, 0.5],
-        'harmonic_minor': [0, 1, 0.5, 0.5, 1, 1, 0.5, 0.5],
-        'major_blues': [0, 1, 0.5, 0.5, 1.5, 1, 1.5],
-        #'minor_blues':
-        'pentatonic_major': [0, 1, 1, 0.5, 1.5, 1, 1.5]
-        #'pentatonic_minor':
-        # 'pentatonic_blues': 
-        }
 
     modes = {
         'ionian':       [0, 1, 1, 0.5, 1, 1, 1, 0.5],
@@ -178,6 +172,20 @@ class Scale:
         self.create_major_scale()
         self.scale_notes = self.create_specified_scale_from_maj()
         print(self.scale_notes)
+
+    def __iter__(self):
+        "create iterable"
+        self.n = 0
+        return self
+
+    def __next__(self):
+        try:
+            rtrn = self.scale_notes[self.n]
+            self.n += 1
+            return rtrn
+        except IndexError:
+            self.n = 0
+            return self.scale_notes[self.n]
 
     def create_major_scale(self):
         "this will always create a major scale, that can then be modified"
@@ -381,5 +389,15 @@ def main(argv):
 
 if __name__ == '__main__':
     c = Scale(root="Db", scale_name="minor")
+    i = iter(c)
+    print(next(i))
+    print(next(i))
+    print(next(i))
+    print(next(i))
+    print(next(i))
+    print(next(i))
+    print(next(i))
+    print(next(i))
+    #b = Scale(root="C", scale_name="major_blues")
     #print(c.get_scale_notes())
     #print(c.get_sc_notes_with_blanks())
