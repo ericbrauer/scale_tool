@@ -65,6 +65,36 @@ class Scale:
                 elif char == 'b':
                     self.accidental -= 1
 
+        def simplify(self):
+            "will return a simpler note name reducing accidentals"
+            acc = self.accidental
+            if acc == 0:
+                return self
+            new_n = self
+            while True:
+                if new_n.accidental > 1 and new_n.note_name in ['B', 'E']:
+                    new_n.note_name = self.notes[self.index + 1]
+                    new_n.accidental -= 1
+                if new_n.accidental < -1 and new_n.note_name in ['C', 'F']:
+                    new_n.note_name = self.notes[self.index - 1]
+                    new_n.accidental += 1
+                if abs(new_n.accidental) > 1:
+                    if new_n.accidental > 1:
+                        while new_n.accidental > 1:
+                            try:
+                                new_n.note_name = self.notes[self.index + 1]
+                            except IndexError:
+                                new_n.note_name = self.notes[0]
+                            new_n.accidental -= 2
+                    elif new_n.accidental < -1:
+                        try:
+                            new_n.note_name = self.notes[self.index - 1]
+                        except IndexError:
+                            new_n.note_name = self.notes[-1]
+                        new_n.accidental += 2
+                else:
+                    return new_n
+
         def acc(self):
             return self.accidental
 
@@ -151,6 +181,9 @@ class Scale:
 
     def __init__(self, **kwargs):
         "verify args, run methods to get scale"
+        for i in ['Bbb', 'B#', 'E#', 'Fb', 'G##', 'Cbbb']:
+            n = Scale.Note(i)
+            print(n.simplify())
         try:
             assert 'root' in kwargs.keys()
         except AssertionError:
