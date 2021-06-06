@@ -52,43 +52,43 @@ class Scale:
 
         sharps = ['C#', 'D#', 'F#', 'G#', 'A#']
         flats = ['Db', 'Eb', 'Gb', 'Ab', 'Bb']
+        notes = [chr(n) for n in range(ord('A'), ord('G'))]
 
-        def __init__(self, note, index):
-            self.note_name = note
-            self.index = int(index)
-            if note in self.sharps:  # index of sharps to flats should match up
-                self.note_alias = self.flats[self.sharps.index(note)]
-                self.is_sharp = True
-            elif note in self.flats:
-                self.note_alias = self.sharps[self.flats.index(note)]
-                self.is_flat = True
-            else:
-                self.note_alias = note  # C alias is C? might eliminate weirdness
+        def __init__(self, note):
+            self.note_name = note[0]  # just the letter
+            self.index = self.notes.index(self.note_name)  # still needed?
+            self.accidental = note[1:] # accidental will be set with __add__ etc.
+
+        def __add__(self, value):
+            "this will increase accidentals to make more sharp"
+            "1 = a semi-tone"
+            while value > 0:
+                self.accidental += '#'
+                value -= 1
+
+        def __sub__(self, value):
+            "this will increase accidentals to make more flat"
+            "1 = a semi-tone"
+            while value > 0:
+                self.accidental += 'b'
+                value -= 1
 
         def __eq__(self, other):
             "the either the flat or sharp will return True"
-            if self.note_name == other:
-                return True
-            elif self.note_alias == other:
-                temp = self.note_name
-                self.note_name = self.note_alias
-                self.note_alias = temp
+            if self.note_name + self.accidental == other:
                 return True
             else:
                 return False
 
         def __str__(self):
-            return self.note_name.replace('b', '\u266d') \
+            return self.note_name + self.accidental.replace('b', '\u266d') \
                 .replace('#', '\u266f')
-        
-        #def __format__(self, format):
-        #    return self.note_name
 
-        def __index__(self):
-            return self.index
+        # def __index__(self):
+        #     return self.index
 
-        def set_index(self, num):
-            self.index = int(num)
+        # def set_index(self, num):
+        #     self.index = int(num)
 
 
     sharp_notes_str = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
@@ -125,11 +125,14 @@ class Scale:
 
     def __init__(self, **kwargs):
         "verify args, run methods to get scale"
-        # n = Scale.Note('C')
-        # n2 = Scale.Note('D#')
-        # nlist = [n, n2]
-        # if 'C' in nlist:
-        #     print('c note correctly identified.')
+        n = Scale.Note('C')
+        n2 = Scale.Note('D#')
+        nlist = [n, n2]
+        if 'C' in nlist:
+            print('c note correctly identified.')
+        n = n + 1
+        print(nlist[0])
+
         try:
             assert 'root' in kwargs.keys()
         except AssertionError:
