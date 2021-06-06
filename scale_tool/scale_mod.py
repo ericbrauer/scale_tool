@@ -57,29 +57,27 @@ class Scale:
         def __init__(self, note):
             self.note_name = note[0]  # just the letter
             self.index = self.notes.index(self.note_name)  # still needed?
-            self.accidental = note[1:] # accidental will be set with __add__ etc.
+            self.accidental = 0
+            acci = note[1:]
+            for char in acci:
+                if char == '#':
+                    self.accidental += 1
+                elif char == 'b':
+                    self.accidental -= 1
+
+        def acc(self):
+            return self.accidental
 
         def __add__(self, value):
             "this will increase accidentals to make more sharp"
             "1 = a semi-tone"
-            while value > 0:
-                if 'b' in self.accidental:
-                    self.accidental = self.accidental.replace('b', '')
-                else:
-                    self.accidental += '#'
-                value -= 1
+            self.accidental += value
             return self
 
         def __sub__(self, value):
             "this will increase accidentals to make more flat"
             "1 = a semi-tone"
-            value = abs(value)
-            while value > 0:
-                if '#' in self.accidental:
-                    self.accidental = self.accidental.replace('#', '')
-                else:
-                    self.accidental += 'b'
-                value -= 1
+            self.accidental -= abs(value)
             return self
 
         def __eq__(self, other):
@@ -90,11 +88,22 @@ class Scale:
                 return False
 
         def __str__(self):
-            return self.note_name + self.accidental.replace('b', '\u266d') \
+            suffix = ''
+            if self.accidental < 0:
+                suffix = 'b' * abs(self.accidental)
+            elif self.accidental > 0:
+                suffix = '#' * abs(self.accidental)
+            return self.note_name + suffix.replace('b', '\u266d') \
                 .replace('#', '\u266f')
 
         def __repr__(self):
-            return self.note_name + self.accidental
+            suffix = '' 
+            if self.accidental < 0:
+                suffix = 'b' * abs(self.accidental)
+            elif self.accidental > 0:
+                suffix = '#' * self.accidental
+            return self.note_name + suffix.replace('b', '\u266d') \
+                .replace('#', '\u266f')
 
         # def __index__(self):
         #     return self.index
@@ -114,7 +123,7 @@ class Scale:
     notes = [chr(n) for n in range(ord('A'), ord('H'))]
 
 # this way of defining intervals sucks, actually.
-    new_scale = {
+    scales = {
         'major': ['1', '2', '3', '4', '5', '6', '7'],
         'minor': ['1', '2', 'b3', '4', '5', 'b6', 'b7']
     }
@@ -124,7 +133,7 @@ class Scale:
     maj_scale = []
 
 
-    scales = {
+    old_scales = {
         'major':        [0, 1, 1, 0.5, 1, 1, 1, 0.5],
         'minor':        [0, 1, 0.5, 1, 1, 0.5, 1, 1],
         'melodic_minor': [0, 1, 0.5, 0.5, 1, 1, 1, 0.5],
@@ -148,14 +157,6 @@ class Scale:
 
     def __init__(self, **kwargs):
         "verify args, run methods to get scale"
-        n = Scale.Note('C')
-        n2 = Scale.Note('D#')
-        nlist = [n, n2]
-        if 'C' in nlist:
-            print('c note correctly identified.')
-        n = n + 1
-        print(nlist[0])
-
         try:
             assert 'root' in kwargs.keys()
         except AssertionError:
@@ -168,27 +169,25 @@ class Scale:
             raise BadScaleError('You must specify a scale name to proceed')
         try:
             self.scale = kwargs['scale_name']
+            assert self.scale in self.scales.keys()
         except AssertionError:
             raise BadScaleError(self.scale)
         note_index = self.notes.index(kwargs['root'][0])
         self.notes = self.notes[note_index:] + self.notes[:note_index]
         #self.set_chromatic_scales()
         self.create_major_scale()
-        self.create_specified_scale_from_maj()
+        self.scale_notes = self.create_specified_scale_from_maj()
+        print(self.scale_notes)
 
     def create_major_scale(self):
         "this will always create a major scale, that can then be modified"
-        scale = self.new_scale['major']  # hardcoded for now
-        intervals = self.maj_formula
-        score = 0
+        score = self.root.acc()  # if root note has accidental, set it here
         for i, note in enumerate(self.notes):
             to_add = Scale.Note(note)  # create C
             if score > 0:
                 to_add = to_add + score  # create C# if needed
-                #score = 0
             elif score < 0:
                 to_add = to_add - score  # create Cb if needed
-                #score = 1
             self.maj_scale.append(to_add)
             score += self.maj_formula[i]
             try:
@@ -202,7 +201,7 @@ class Scale:
 
     def create_specified_scale_from_maj(self):
         "use formulas to adapt given maj scale"
-        formula = self.new_scale['minor']  # hardcoded
+        formula = self.scales[self.scale]
         maj = self.maj_scale
         scale = []
         for step in formula:
@@ -381,6 +380,6 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    c = Scale(root="D", scale_name="major")
-    print(c.get_scale_notes())
-    print(c.get_sc_notes_with_blanks())
+    c = Scale(root="Db", scale_name="minor")
+    #print(c.get_scale_notes())
+    #print(c.get_sc_notes_with_blanks())
