@@ -15,17 +15,16 @@ class Fretboard:
     def __init__(self, **kwargs):
         try:
             assert 'tuning' in kwargs.keys()
-        except:
+        except AssertionError:
             raise ValueError("Please specify tuning, in a list, from lowest to highest.")
         try:
             assert 'scale_length' in kwargs.keys()
-        except:
+        except AssertionError:
             raise ValueError("Please specify a length of the fretboard in number of frets.")
         self.tuning = kwargs['tuning']
         self.scale_length = kwargs['scale_length']
         self.root = kwargs['root']
         self.scale_name = kwargs['scale']
-
 
     def draw_fretboard(self):
         print('    ', end="")
@@ -33,7 +32,6 @@ class Fretboard:
         sc_obj = Scale(root=self.root, scale_name=self.scale_name)
         for note in self.tuning:
             strings.append(sc_obj.get_next(note))  # this is a generator
-# TODO: We haven't built a way to start on a certain non-root note!!
         for note in strings:
             out = next(note)
             if out is None:
@@ -95,9 +93,10 @@ def argparse_setup():
     args = parser.parse_args()
     return args
 
+
 if __name__ == '__main__':
     args = argparse_setup()
     # scale_options = Scale.get_scales()
     print(args)
-    guitar = Fretboard(tuning=['Eb', 'Ab', 'Db', 'Gb', 'Bb', 'Eb'], scale_length=13, root=args.root, scale=args.scale)  # haha, flats cause bad root error!
+    guitar = Fretboard(tuning=['E', 'A', 'D', 'G', 'B', 'E'], scale_length=13, root=args.root, scale=args.scale)  # anythin not C causing errors 
     guitar.draw_fretboard()

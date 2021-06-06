@@ -99,6 +99,8 @@ class Scale:
 
     scale_notes = []
 
+
+# this way of defining intervals sucks, actually.
     scales = {
         'major':        [0, 1, 1, 0.5, 1, 1, 1, 0.5],
         'minor':        [0, 1, 0.5, 1, 1, 0.5, 1, 1],
