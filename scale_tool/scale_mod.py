@@ -63,7 +63,10 @@ class Scale:
             "this will increase accidentals to make more sharp"
             "1 = a semi-tone"
             while value > 0:
-                self.accidental += '#'
+                if 'b' in self.accidental:
+                    self.accidental = self.accidental.replace('b', '')
+                else:
+                    self.accidental += '#'
                 value -= 1
             return self
 
@@ -72,7 +75,10 @@ class Scale:
             "1 = a semi-tone"
             value = abs(value)
             while value > 0:
-                self.accidental += 'b'
+                if '#' in self.accidental:
+                    self.accidental = self.accidental.replace('#', '')
+                else:
+                    self.accidental += 'b'
                 value -= 1
             return self
 
@@ -109,7 +115,8 @@ class Scale:
 
 # this way of defining intervals sucks, actually.
     new_scale = {
-        'major': [1, 2, 3, 4, 5, 6, 7]
+        'major': ['1', '2', '3', '4', '5', '6', '7'],
+        'minor': ['1', '2', 'b3', '4', '5', 'b6', 'b7']
     }
 
     maj_formula = [2, 2, 1, 2, 2, 2, 1] 
@@ -167,6 +174,7 @@ class Scale:
         self.notes = self.notes[note_index:] + self.notes[:note_index]
         #self.set_chromatic_scales()
         self.create_major_scale()
+        self.create_specified_scale_from_maj()
 
     def create_major_scale(self):
         "this will always create a major scale, that can then be modified"
@@ -191,6 +199,35 @@ class Scale:
                 score -= 1
             else:
                 score -= 2
+
+    def create_specified_scale_from_maj(self):
+        "use formulas to adapt given maj scale"
+        formula = self.new_scale['minor']  # hardcoded
+        maj = self.maj_scale
+        scale = []
+        for step in formula:
+            sharps = 0
+            flats = 0
+            for char in step:
+                if not char.isdigit():
+                    if char == 'b':
+                        flats += 1
+                    elif char == '#':
+                        sharps += 1
+                    step = step.replace(char, '')
+            index = int(step) - 1
+            if index >= len(maj):  # this should convert 9 to 2 for example
+                index %= len(maj)
+            tf = int(sharps) - int(flats)
+            if tf > 0:
+                note = maj[index] + tf
+            elif tf < 0:
+                note = maj[index] - tf
+            else:
+                note = maj[index]
+            scale.append(note)
+        return scale
+
 
     def set_chromatic_scales(self):
         self.chr_sc_flats = self.create_chromatic_scale(self.root, 'flat')
