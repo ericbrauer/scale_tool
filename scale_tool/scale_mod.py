@@ -70,24 +70,30 @@ class Scale:
             new_n = self
             while True:
                 if new_n.accidental >= 1 and new_n.note_name in ['B', 'E']:
-                    new_n.note_name = self.notes[self.index + 1]
+                    new_n.index += 1
+                    new_n.note_name = new_n.notes[new_n.index]
                     new_n.accidental -= 1
                 if new_n.accidental <= -1 and new_n.note_name in ['C', 'F']:
-                    new_n.note_name = self.notes[self.index - 1]
+                    new_n.index -= 1
+                    new_n.note_name = new_n.notes[new_n.index]
                     new_n.accidental += 1
                 if abs(new_n.accidental) > 1:
                     if new_n.accidental > 1:
                         while new_n.accidental > 1:
                             try:
-                                new_n.note_name = self.notes[self.index + 1]
+                                new_n.index += 1
+                                new_n.note_name = new_n.notes[new_n.index]
                             except IndexError:
-                                new_n.note_name = self.notes[0]
+                                new_n.index = 0
+                                new_n.note_name = new_n.notes[new_n.index]
                             new_n.accidental -= 2
                     elif new_n.accidental < -1:
                         try:
-                            new_n.note_name = self.notes[self.index - 1]
+                            new_n.index -= 1
+                            new_n.note_name = new_n.notes[new_n.index]
                         except IndexError:
-                            new_n.note_name = self.notes[-1]
+                            new_n.index = -1
+                            new_n.note_name = new_n.notes[new_n.index]
                         new_n.accidental += 2
                 else:
                     return new_n
@@ -178,7 +184,7 @@ class Scale:
 
     def __init__(self, **kwargs):
         "verify args, run methods to get scale"
-        for i in ['Bbb', 'B#', 'E#', 'Fb', 'G##', 'Cbbb']:
+        for i in ['Cbbb', 'F#', 'Bbb', 'B#', 'E#', 'Fb', 'G##']:
             n = Scale.Note(i)
             print(n.simplify())
         try:
