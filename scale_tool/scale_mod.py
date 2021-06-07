@@ -4,9 +4,6 @@ import sys
 import getopt
 from typing import get_args
 
-# TODO: interval should return only index int
-# TODO: so what if we implemented a dict, where the key is the interval (1,2,5, etc.) and the value is the note?
-
 '''
 Found later: https://www.mvanga.com/blog/basic-music-theory-in-200-lines-of-python
 '''
@@ -72,10 +69,10 @@ class Scale:
                 return self
             new_n = self
             while True:
-                if new_n.accidental > 1 and new_n.note_name in ['B', 'E']:
+                if new_n.accidental >= 1 and new_n.note_name in ['B', 'E']:
                     new_n.note_name = self.notes[self.index + 1]
                     new_n.accidental -= 1
-                if new_n.accidental < -1 and new_n.note_name in ['C', 'F']:
+                if new_n.accidental <= -1 and new_n.note_name in ['C', 'F']:
                     new_n.note_name = self.notes[self.index - 1]
                     new_n.accidental += 1
                 if abs(new_n.accidental) > 1:
