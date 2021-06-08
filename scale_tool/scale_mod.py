@@ -125,7 +125,7 @@ class Scale:
 
         def __eq__(self, other):
             "the either the flat or sharp will return True"
-            if self.note_name + self.accidental == other:
+            if str(self.simplify()) == str(other.simplify()):
                 return True
             else:
                 return False
@@ -193,15 +193,17 @@ class Scale:
 
     def __init__(self, **kwargs):
         "verify args, run methods to get scale"
+        a = Scale.Note('A##')
         b = Scale.Note('B')
         b.next_note()
-        b.next_note()
-        b.next_note()
-        b.prev_note()
-        b.prev_note()
+        a.next_note()
+        # b.next_note()
+        # b.prev_note()
+        # b.prev_note()
         for i in ['Cbbb', 'F#', 'Bbb', 'B#', 'E#', 'Fb', 'G##']:
             n = Scale.Note(i)
             print(n.simplify())
+        print(b == a)
         try:
             assert 'root' in kwargs.keys()
         except AssertionError:
