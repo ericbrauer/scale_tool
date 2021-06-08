@@ -42,7 +42,7 @@ class Scale:
 
     class Note:
         """
-        This note object should be able to contain its sharp/flat 'aliases' 
+        This note object should be able to contain its sharp/flat 'aliases'
         and hopefully allow more functionality (octaves, interval id?, pitch)
         in the future.
         """
@@ -130,7 +130,7 @@ class Scale:
                 .replace('#', '\u266f')
 
         def __repr__(self):
-            suffix = '' 
+            suffix = ''
             if self.accidental < 0:
                 suffix = 'b' * abs(self.accidental)
             elif self.accidental > 0:
@@ -144,12 +144,11 @@ class Scale:
         # def set_index(self, num):
         #     self.index = int(num)
 
-
     sharp_notes_str = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
-                   'A', 'A#', 'B']
+                       'A', 'A#', 'B']
 
     flat_notes_str = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 
-                  'A', 'Bb', 'B']
+                      'A', 'Bb', 'B']
 
     scale_notes = []
 
@@ -168,7 +167,7 @@ class Scale:
         'pentatonic_blues': ['1', 'b3', '4', 'b5', '5', 'b7']
     }
 
-    maj_formula = [2, 2, 1, 2, 2, 2, 1] 
+    maj_formula = [2, 2, 1, 2, 2, 2, 1]
 
     maj_scale = []
 
@@ -204,7 +203,7 @@ class Scale:
             raise BadScaleError(self.scale)
         note_index = self.notes.index(kwargs['root'][0])
         self.notes = self.notes[note_index:] + self.notes[:note_index]
-        #self.set_chromatic_scales()
+        # self.set_chromatic_scales()
         self.create_major_scale()
         self.scale_notes = self.create_specified_scale_from_maj()
         print(self.scale_notes)
@@ -274,7 +273,6 @@ class Scale:
             scale.append(note)
         return scale
 
-
     def set_chromatic_scales(self):
         self.chr_sc_flats = self.create_chromatic_scale(self.root, 'flat')
         self.chr_sc_sharps = self.create_chromatic_scale(self.root, 'sharp')
@@ -285,9 +283,11 @@ class Scale:
             first_note = self.root
         first_note_ind = self.chr_sc_sharps.index(first_note)
         if fl_sh == 'sharp':
-            return self.chr_sc_sharps[first_note_ind:] + self.chr_sc_sharps[:first_note_ind]
+            return self.chr_sc_sharps[first_note_ind:] + \
+                   self.chr_sc_sharps[:first_note_ind]
         else:
-            return self.chr_sc_flats[first_note_ind:] + self.chr_sc_flats[:first_note_ind]
+            return self.chr_sc_flats[first_note_ind:] + \
+                   self.chr_sc_flats[:first_note_ind]
 
     def create_chromatic_scale(self, first_note=None, fl_sh='sharp'):
         if fl_sh == 'sharp':
@@ -310,7 +310,6 @@ class Scale:
         scale_notes = []
         for index in range(len(self.scale)-1):
             element = int(element + (self.scale[index] * 2))
-            # chr[element].set_index(index)  # set the index to its position in the scale
             scale_notes.append(chr[element])
         return scale_notes
 
@@ -383,8 +382,12 @@ def main(argv):
     "here's where we handle system arguments in case people wish to use this"
     "module as a standalone cli tool"
     try:
-        opts, args = getopt.getopt(argv, "hr:n:", ["help", "root=", "scale_name="])
-        if opts is None: # this  is not working
+        opts, args = getopt.getopt(argv,
+                                   "hr:n:",
+                                   ["help",
+                                    "root=",
+                                    "scale_name="])
+        if opts is None:  # this  is not working
             raise getopt.GetoptError
     except getopt.GetoptError:
         usage()
@@ -437,6 +440,6 @@ if __name__ == '__main__':
     print(next(i))
     print(next(i))
     print(next(i))
-    #b = Scale(root="C", scale_name="major_blues")
-    #print(c.get_scale_notes())
-    #print(c.get_sc_notes_with_blanks())
+    # b = Scale(root="C", scale_name="major_blues")
+    # print(c.get_scale_notes())
+    # print(c.get_sc_notes_with_blanks())
