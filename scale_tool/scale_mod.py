@@ -70,33 +70,43 @@ class Scale:
             new_n = self
             while True:
                 if new_n.accidental >= 1 and new_n.note_name in ['B', 'E']:
-                    new_n.index += 1
-                    new_n.note_name = new_n.notes[new_n.index]
-                    new_n.accidental -= 1
+                    new_n.next_note()
                 if new_n.accidental <= -1 and new_n.note_name in ['C', 'F']:
-                    new_n.index -= 1
-                    new_n.note_name = new_n.notes[new_n.index]
-                    new_n.accidental += 1
+                    new_n.prev_note()
                 if abs(new_n.accidental) > 1:
-                    if new_n.accidental > 1:
-                        while new_n.accidental > 1:
-                            try:
-                                new_n.index += 1
-                                new_n.note_name = new_n.notes[new_n.index]
-                            except IndexError:
-                                new_n.index = 0
-                                new_n.note_name = new_n.notes[new_n.index]
-                            new_n.accidental -= 2
-                    elif new_n.accidental < -1:
-                        try:
-                            new_n.index -= 1
-                            new_n.note_name = new_n.notes[new_n.index]
-                        except IndexError:
-                            new_n.index = -1
-                            new_n.note_name = new_n.notes[new_n.index]
-                        new_n.accidental += 2
+                    while new_n.accidental > 1:
+                        new_n.next_note()
+                    while new_n.accidental < -1:
+                        new_n.prev_note()
                 else:
                     return new_n
+
+        def next_note(self):
+            "change Note name without affecting its tone"
+            try:
+                self.index += 1
+                self.note_name = self.notes[self.index]
+            except IndexError:
+                self.index = 0
+                self.note_name = self.notes[self.index]
+            if self.note_name in ['F', 'C']:
+                self.accidental -= 1
+            else:
+                self.accidental -= 2
+            return self
+
+        def prev_note(self):
+            try:
+                self.index -= 1
+                self.note_name = self.notes[self.index]
+            except IndexError:
+                self.index = -1
+                self.note_name = self.notes[self.index]
+            if self.note_name in ['E', 'B']:
+                self.accidental += 1
+            else:
+                self.accidental += 2
+            return self
 
         def acc(self):
             return self.accidental
@@ -183,6 +193,12 @@ class Scale:
 
     def __init__(self, **kwargs):
         "verify args, run methods to get scale"
+        b = Scale.Note('B')
+        b.next_note()
+        b.next_note()
+        b.next_note()
+        b.prev_note()
+        b.prev_note()
         for i in ['Cbbb', 'F#', 'Bbb', 'B#', 'E#', 'Fb', 'G##']:
             n = Scale.Note(i)
             print(n.simplify())
@@ -430,16 +446,16 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    c = Scale(root="Db", scale_name="minor")
-    i = iter(c)
-    print(next(i))
-    print(next(i))
-    print(next(i))
-    print(next(i))
-    print(next(i))
-    print(next(i))
-    print(next(i))
-    print(next(i))
-    # b = Scale(root="C", scale_name="major_blues")
+    # c = Scale(root="Db", scale_name="minor")
+    # i = iter(c)
+    # print(next(i))
+    # print(next(i))
+    # print(next(i))
+    # print(next(i))
+    # print(next(i))
+    # print(next(i))
+    # print(next(i))
+    # print(next(i))
+    b = Scale(root="C", scale_name="major_blues")
     # print(c.get_scale_notes())
     # print(c.get_sc_notes_with_blanks())
