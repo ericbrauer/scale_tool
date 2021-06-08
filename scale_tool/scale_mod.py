@@ -223,6 +223,9 @@ class Scale:
             self.n = 0
             return self.scale_notes[self.n]
 
+    def __getitem__(self, position):
+        return self.scale_notes[position]
+
     def create_major_scale(self):
         "this will always create a major scale, that can then be modified"
         score = self.root.acc()  # if root note has accidental, set it here
