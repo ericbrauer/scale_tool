@@ -52,13 +52,13 @@ class Scale:
         notes = [chr(n) for n in range(ord('A'), ord('H'))]
 
         def __init__(self, note):
-            self.note_name = note[0]  # just the letter
+            self.note_name = note[0]  # first char is the letter
             self.index = self.notes.index(self.note_name)  # still needed?
-            self.accidental = 0
-            acci = note[1:]
+            self.accidental = 0  # integer indicating sharp/flat
+            acci = note[1:]  # for all other chars, set accidental
             for char in acci:
                 if char == '#':
-                    self.accidental += 1
+                    self.accidental += 1  # each sharp = 1.
                 elif char == 'b':
                     self.accidental -= 1
 
@@ -70,12 +70,12 @@ class Scale:
             new_n = self
             while True:
                 if new_n.accidental >= 1 and new_n.note_name in ['B', 'E']:
-                    new_n.next_note()
+                    new_n.next_note()  # so that a B sharp becomes C
                 if new_n.accidental <= -1 and new_n.note_name in ['C', 'F']:
-                    new_n.prev_note()
+                    new_n.prev_note()  # so that a C flat becomes B
                 if abs(new_n.accidental) > 1:
                     while new_n.accidental > 1:
-                        new_n.next_note()
+                        new_n.next_note()  # so that a G sharp-sharp becomes A
                     while new_n.accidental < -1:
                         new_n.prev_note()
                 else:
@@ -84,9 +84,9 @@ class Scale:
         def next_note(self):
             "change Note name without affecting its tone"
             try:
-                self.index += 1
+                self.index += 1  # basic way to get next letter in sequence
                 self.note_name = self.notes[self.index]
-            except IndexError:
+            except IndexError:  # occurs when we reach the end and loop to beginning
                 self.index = 0
                 self.note_name = self.notes[self.index]
             if self.note_name in ['F', 'C']:
@@ -125,7 +125,9 @@ class Scale:
 
         def __eq__(self, other):
             "the either the flat or sharp will return True"
-            if str(self.simplify()) == str(other.simplify()):
+            if isinstance(other, str):  # if the other is a string,
+                return str(self.simplify()) == other  # then we only need to simplify self
+            if self.simplify() == other.simplify():
                 return True
             else:
                 return False
@@ -192,18 +194,14 @@ class Scale:
     }
 
     def __init__(self, **kwargs):
-        "verify args, run methods to get scale"
-        a = Scale.Note('A##')
-        b = Scale.Note('B')
-        b.next_note()
-        a.next_note()
-        # b.next_note()
-        # b.prev_note()
-        # b.prev_note()
-        for i in ['Cbbb', 'F#', 'Bbb', 'B#', 'E#', 'Fb', 'G##']:
-            n = Scale.Note(i)
-            print(n.simplify())
-        print(b == a)
+        self.start = kwargs["root"]  # where do we start
+        try:
+            self.chromatic = kwargs["chromatic"]  # will create sharps
+        except:
+            self.chromatic = False
+        note_index = self.notes.index(str(self.start)[0])
+        self.notenames = self.notes[note_index:] + self.notes[:note_index]
+        self.notes = [Scale.Note(n) for n in self.notenames]
         try:
             assert 'root' in kwargs.keys()
         except AssertionError:
@@ -219,12 +217,28 @@ class Scale:
             assert self.scale in self.scales.keys()
         except AssertionError:
             raise BadScaleError(self.scale)
-        note_index = self.notes.index(kwargs['root'][0])
-        self.notes = self.notes[note_index:] + self.notes[:note_index]
         # self.set_chromatic_scales()
+        # s = Scale.Notes(root=self.root)
+        # iter(self.notes)
+        # next(s)
         self.create_major_scale()
         self.scale_notes = self.create_specified_scale_from_maj()
         print(self.scale_notes)
+    
+    def __repr__(self):
+        return self.notes
+
+    # def __iter__(self):
+    #     for note in self.notes:
+    # b.next_note()
+    # a.next_note()
+    # # b.next_note()
+    # # b.prev_note()
+    # # b.prev_note()
+    # for i in ['Cbbb', 'F#', 'Bbb', 'B#', 'E#', 'Fb', 'G##']:
+    #     n = Scale.Note(i)
+    #     print(n.simplify())
+    # print(b == a)
 
     def __iter__(self):
         "create iterable"
@@ -247,7 +261,7 @@ class Scale:
         "this will always create a major scale, that can then be modified"
         score = self.root.acc()  # if root note has accidental, set it here
         for i, note in enumerate(self.notes):
-            to_add = Scale.Note(note)  # create C
+            to_add = note
             if score > 0:
                 to_add = to_add + score  # create C# if needed
             elif score < 0:
