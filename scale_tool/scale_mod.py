@@ -81,6 +81,22 @@ class Scale:
                 else:
                     return new_n
 
+        def replace(self, new_note):
+            "changes note name to new_note without changing tone"
+            origin = self.note_name  # make sure just the name
+            target = new_note.note_name
+            # need to see if it's simpler to go up or down the scale
+            fwd = self.notes.index(target) - self.notes.index(origin)  # will be positive if the destination is higher up the scale than origin
+            if fwd > 0:
+                while self.note_name != new_note:
+                    self.next_note()
+            elif fwd < 0:
+                while self.note_name != new_note:
+                    self.prev_note()
+            else:
+                pass
+            return self
+
         def next_note(self):
             "change Note name without affecting its tone"
             try:
@@ -181,7 +197,6 @@ class Scale:
 
     maj_formula = [2, 2, 1, 2, 2, 2, 1]
 
-    maj_scale = []
 
     modes = {
         'ionian':       [0, 1, 1, 0.5, 1, 1, 1, 0.5],
@@ -194,6 +209,7 @@ class Scale:
     }
 
     def __init__(self, **kwargs):
+        self.maj_scale = []
         self.start = kwargs["root"]  # where do we start
         try:
             self.chromatic = kwargs["chromatic"]  # will create sharps
@@ -223,7 +239,7 @@ class Scale:
         # next(s)
         self.create_major_scale()
         self.scale_notes = self.create_specified_scale_from_maj()
-        print(self.scale_notes)
+        # print(self.scale_notes)
     
     def __repr__(self):
         return self.notes
@@ -277,14 +293,31 @@ class Scale:
             else:
                 score -= 2
 
+    '''
+    TODO
+    I figured it out!
+    When we create the major scale, we have create mutable objects.
+    We are using the major scale and referring to notes in that scale. 
+    But! we change E to E flat, and then when 
+
+    major = C, D, E
+    blues = b3 ->> changes E to Eb
+    next loop:
+    blues = 3 ->> changes Eb to Fbb rather from E to Fb
+    solution? new notes?
+    '''
+
+
     def create_specified_scale_from_maj(self):
         "use formulas to adapt given maj scale"
         formula = self.scales[self.scale]
         maj = self.maj_scale
         scale = []
+        maj_ind = 0  # we name notes based on the major scale
         for step in formula:
             sharps = 0
             flats = 0
+            tf = 0
             for char in step:
                 if not char.isdigit():
                     if char == 'b':
@@ -296,13 +329,14 @@ class Scale:
             if index >= len(maj):  # this should convert 9 to 2 for example
                 index %= len(maj)
             tf = int(sharps) - int(flats)
+            note = Scale.Note(str(maj[index]))
             if tf > 0:
-                note = maj[index] + tf
+                note + tf
             elif tf < 0:
-                note = maj[index] - tf
-            else:
-                note = maj[index]
-            scale.append(note)
+                note - tf
+            turn_into = self.maj_scale[maj_ind]
+            scale.append(note.replace(turn_into))
+            maj_ind += 1
         return scale
 
     def set_chromatic_scales(self):
@@ -323,11 +357,11 @@ class Scale:
 
     def create_chromatic_scale(self, first_note=None, fl_sh='sharp'):
         if fl_sh == 'sharp':
-            allnotes = self.sharp_notes
+            allnotes = self.sharp_notes_str
         else:
-            allnotes = self.flat_notes
+            allnotes = self.flat_notes_str
         if first_note is None:
-            first_note = self.root
+            first_note = str(self.root)
         x = allnotes.index(first_note)
         new_notes = allnotes[x:]
         for index, note in enumerate(allnotes[:x]):
@@ -462,7 +496,7 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    # c = Scale(root="Db", scale_name="minor")
+    c = Scale(root="Db", scale_name="minor")
     # i = iter(c)
     # print(next(i))
     # print(next(i))
@@ -473,5 +507,6 @@ if __name__ == '__main__':
     # print(next(i))
     # print(next(i))
     b = Scale(root="C", scale_name="major_blues")
-    # print(c.get_scale_notes())
-    # print(c.get_sc_notes_with_blanks())
+    print(b.get_chromatic_scale())
+    print(c.get_scale_notes())
+    print(c.get_sc_notes_with_blanks())
