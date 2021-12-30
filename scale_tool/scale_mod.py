@@ -172,11 +172,11 @@ class Scale:
         # def set_index(self, num):
         #     self.index = int(num)
 
-    sharp_notes_str = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
-                       'A', 'A#', 'B']
+    sharp_notes_str = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯',
+                       'A', 'A♯', 'B']
 
-    flat_notes_str = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 
-                      'A', 'Bb', 'B']
+    flat_notes_str = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 
+                      'A', 'B♭', 'B']
 
     scale_notes = []
 
@@ -233,28 +233,13 @@ class Scale:
             assert self.scale in self.scales.keys()
         except AssertionError:
             raise BadScaleError(self.scale)
-        # self.set_chromatic_scales()
-        # s = Scale.Notes(root=self.root)
-        # iter(self.notes)
-        # next(s)
+        self.set_chromatic_scales()
         self.create_major_scale()
         self.scale_notes = self.create_specified_scale_from_maj()
-        # print(self.scale_notes)
     
     def __repr__(self):
         return self.notes
 
-    # def __iter__(self):
-    #     for note in self.notes:
-    # b.next_note()
-    # a.next_note()
-    # # b.next_note()
-    # # b.prev_note()
-    # # b.prev_note()
-    # for i in ['Cbbb', 'F#', 'Bbb', 'B#', 'E#', 'Fb', 'G##']:
-    #     n = Scale.Note(i)
-    #     print(n.simplify())
-    # print(b == a)
 
     def __iter__(self):
         "create iterable"
@@ -293,49 +278,35 @@ class Scale:
             else:
                 score -= 2
 
-    '''
-    TODO
-    I figured it out!
-    When we create the major scale, we have create mutable objects.
-    We are using the major scale and referring to notes in that scale. 
-    But! we change E to E flat, and then when 
-
-    major = C, D, E
-    blues = b3 ->> changes E to Eb
-    next loop:
-    blues = 3 ->> changes Eb to Fbb rather from E to Fb
-    solution? new notes?
-    '''
-
 
     def create_specified_scale_from_maj(self):
         "use formulas to adapt given maj scale"
         formula = self.scales[self.scale]
         maj = self.maj_scale
         scale = []
-        maj_ind = 0  # we name notes based on the major scale
-        for step in formula:
+        maj_ind = 0  # used to get next letter in maj for naming
+        for step in formula:  # we will step through 1, 2, flat 3, etc.
             sharps = 0
             flats = 0
             tf = 0
-            for char in step:
+            for char in step:  # distinguishes between b/# symbols and numbers
                 if not char.isdigit():
                     if char == 'b':
                         flats += 1
                     elif char == '#':
                         sharps += 1
-                    step = step.replace(char, '')
-            index = int(step) - 1
+                    step = step.replace(char, '')  # remove flats/sharps as they come
+            index = int(step) - 1  # index starts at zero!
             if index >= len(maj):  # this should convert 9 to 2 for example
                 index %= len(maj)
-            tf = int(sharps) - int(flats)
-            note = Scale.Note(str(maj[index]))
+            tf = int(sharps) - int(flats)  # tf will set accidental
+            note = Scale.Note(str(maj[index]))  # important we create new notes!
             if tf > 0:
                 note + tf
             elif tf < 0:
                 note - tf
-            turn_into = self.maj_scale[maj_ind]
-            scale.append(note.replace(turn_into))
+            turn_into = self.maj_scale[maj_ind]  # turn into used because a scale shouldn't contain two E's, for instance.
+            scale.append(note.replace(turn_into))  # will set a note to a new letter without changing its tone
             maj_ind += 1
         return scale
 
@@ -365,7 +336,7 @@ class Scale:
         x = allnotes.index(first_note)
         new_notes = allnotes[x:]
         for index, note in enumerate(allnotes[:x]):
-            new_notes.append(Scale.Note(note, index))
+            new_notes.append(Scale.Note(note))
         # new_notes.append(Scale.Note(allnotes[x]))
         return new_notes
 
@@ -457,7 +428,6 @@ def main(argv):
             raise getopt.GetoptError
     except getopt.GetoptError:
         usage()
-        # Scale.get_scales()
         sys.exit(1)
     # try:
     for opt, arg in opts:
@@ -471,13 +441,8 @@ def main(argv):
         else:
             print('use -h for help')
             sys.exit(1)
-    # except BadRootError:
-    # TODO: no catch of no root variable here.
 
     try:
-        # ok, problem here. if root is set in options, I want it passed to init.
-        # But if not, it shouldn't be passed.
-        # this is... overloading? Check the old C++ book maybe.
         s = Scale(root=root, scale_name=scale_name)
         print(s.get_scale_notes())
         sys.exit(0)
