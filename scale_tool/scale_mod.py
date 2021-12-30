@@ -5,7 +5,7 @@ import getopt
 from typing import get_args
 
 '''
-Found later: https://www.mvanga.com/blog/basic-music-theory-in-200-lines-of-python
+Found https://www.mvanga.com/blog/basic-music-theory-in-200-lines-of-python
 '''
 
 
@@ -86,7 +86,7 @@ class Scale:
             origin = self.note_name  # make sure just the name
             target = new_note.note_name
             # need to see if it's simpler to go up or down the scale
-            fwd = self.notes.index(target) - self.notes.index(origin)  # will be positive if the destination is higher up the scale than origin
+            fwd = self.notes.index(target) - self.notes.index(origin)
             if fwd > 0:
                 while self.note_name != new_note:
                     self.next_note()
@@ -102,7 +102,7 @@ class Scale:
             try:
                 self.index += 1  # basic way to get next letter in sequence
                 self.note_name = self.notes[self.index]
-            except IndexError:  # occurs when we reach the end and loop to beginning
+            except IndexError:  # when we reach the end and loop to beginning
                 self.index = 0
                 self.note_name = self.notes[self.index]
             if self.note_name in ['F', 'C']:
@@ -142,7 +142,7 @@ class Scale:
         def __eq__(self, other):
             "the either the flat or sharp will return True"
             if isinstance(other, str):  # if the other is a string,
-                return str(self.simplify()) == other  # then we only need to simplify self
+                return str(self.simplify()) == other  # simplify self
             if self.simplify() == other.simplify():
                 return True
             else:
@@ -175,7 +175,7 @@ class Scale:
     sharp_notes_str = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯',
                        'A', 'A♯', 'B']
 
-    flat_notes_str = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 
+    flat_notes_str = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭',
                       'A', 'B♭', 'B']
 
     scale_notes = []
@@ -197,7 +197,6 @@ class Scale:
 
     maj_formula = [2, 2, 1, 2, 2, 2, 1]
 
-
     modes = {
         'ionian':       [0, 1, 1, 0.5, 1, 1, 1, 0.5],
         'dorian':       [0, 1, 0.5, 1, 1, 1, 0.5, 1],
@@ -213,7 +212,7 @@ class Scale:
         self.start = kwargs["root"]  # where do we start
         try:
             self.chromatic = kwargs["chromatic"]  # will create sharps
-        except:
+        except KeyError:
             self.chromatic = False
         note_index = self.notes.index(str(self.start)[0])
         self.notenames = self.notes[note_index:] + self.notes[:note_index]
@@ -236,10 +235,9 @@ class Scale:
         self.set_chromatic_scales()
         self.create_major_scale()
         self.scale_notes = self.create_specified_scale_from_maj()
-    
+
     def __repr__(self):
         return self.notes
-
 
     def __iter__(self):
         "create iterable"
@@ -278,7 +276,6 @@ class Scale:
             else:
                 score -= 2
 
-
     def create_specified_scale_from_maj(self):
         "use formulas to adapt given maj scale"
         formula = self.scales[self.scale]
@@ -295,12 +292,12 @@ class Scale:
                         flats += 1
                     elif char == '#':
                         sharps += 1
-                    step = step.replace(char, '')  # remove flats/sharps as they come
+                    step = step.replace(char, '')  # remove flats/sharps
             index = int(step) - 1  # index starts at zero!
             if index >= len(maj):  # this should convert 9 to 2 for example
                 index %= len(maj)
             tf = int(sharps) - int(flats)  # tf will set accidental
-            note = Scale.Note(str(maj[index]))  # important we create new notes!
+            note = Scale.Note(str(maj[index]))  # important we create new notes
             if tf > 0:
                 note + tf
             elif tf < 0:
