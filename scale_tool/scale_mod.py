@@ -51,16 +51,21 @@ class Scale:
         flats = ['Db', 'Eb', 'Gb', 'Ab', 'Bb']
         notes = [chr(n) for n in range(ord('A'), ord('H'))]
 
-        def __init__(self, note):
+        def __init__(self, note, **kwargs):
             self.note_name = note[0]  # first char is the letter
             self.index = self.notes.index(self.note_name)  # still needed?
             self.accidental = 0  # integer indicating sharp/flat
             acci = note[1:]  # for all other chars, set accidental
             for char in acci:
-                if char == '#':
+                if char in ('#', '\u266f'):
                     self.accidental += 1  # each sharp = 1.
-                elif char == 'b':
+                elif char in ('b', '\u266d'):
                     self.accidental -= 1
+            alias_prev = Scale.Note(note)  # causes infinite recursion, dude.
+            alias_prev.prev_note()
+            alias_next = Scale.Note(note)
+            alias_next.next_note()
+            self.aliases = [alias_prev, note, alias_next]  # breaks because prev/next changes self
 
         def simplify(self):
             "will return a simpler note name reducing accidentals"
@@ -143,7 +148,9 @@ class Scale:
             "the either the flat or sharp will return True"
             if isinstance(other, str):  # if the other is a string,
                 return str(self.simplify()) == other  # simplify self
-            if self.simplify() == other.simplify():
+            if self.note_name == other.note_name and self.acc() == other.acc():
+                return True
+            elif self.simplify() in other.aliases:
                 return True
             else:
                 return False
@@ -232,7 +239,8 @@ class Scale:
             assert self.scale in self.scales.keys()
         except AssertionError:
             raise BadScaleError(self.scale)
-        self.set_chromatic_scales()
+        self.chromatic = self.create_chromatic_scale()
+        # self.set_chromatic_scales()
         self.create_major_scale()
         self.scale_notes = self.create_specified_scale_from_maj()
 
@@ -323,19 +331,34 @@ class Scale:
             return self.chr_sc_flats[first_note_ind:] + \
                    self.chr_sc_flats[:first_note_ind]
 
-    def create_chromatic_scale(self, first_note=None, fl_sh='sharp'):
-        if fl_sh == 'sharp':
-            allnotes = self.sharp_notes_str
-        else:
-            allnotes = self.flat_notes_str
+    def create_chromatic_scale(self, first_note=None):
         if first_note is None:
-            first_note = str(self.root)
-        x = allnotes.index(first_note)
-        new_notes = allnotes[x:]
-        for index, note in enumerate(allnotes[:x]):
-            new_notes.append(Scale.Note(note))
-        # new_notes.append(Scale.Note(allnotes[x]))
-        return new_notes
+            first_note = self.root
+        if first_note.acc() > 0:
+            use_sharps = True
+        else:
+            use_sharps = False
+        chroma = []
+        chroma.append(first_note)
+        current_note = first_note
+        while True:
+            next_note = Scale.Note(str(current_note))
+            next_note = next_note + 1
+            next_note.simplify()
+            if next_note == first_note:
+                break
+            else:
+                chroma.append(next_note)
+                current_note = next_note
+        return chroma
+
+    '''
+    TODO
+    okay, so: my notes don't have a good way to prioritize flat/sharp when they are created. everything is sharp by default. This loop causes issues when it starts with a D-flat b/c it want to use C-sharp.
+
+    FIX: I think we should create an alias inside the Note class, so that _eq_ will check for both.
+    Also: _add_ should probably just run simplify?
+    '''
 
     def get_scale_notes(self):
         "returns a list of notes in the defined scale"
