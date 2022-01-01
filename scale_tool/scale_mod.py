@@ -42,7 +42,7 @@ class Scale:
         """
 
         def __init__(self, root):
-            self.notes = []
+            self._notes = []
             root_note, root_acc = Scale._Note.parsestring(root)
             if root_acc < 0:  # if the root note is flat
                 accs = (-1, 0)  # use flats in the chromatic scale
@@ -53,12 +53,18 @@ class Scale:
             for n in range(ord('A'), ord('H')):
                 for acc in accs:
                     if chr(n) not in exclude or acc == 0:
-                        self.notes.append(Scale._Note(chr(n), acc))
+                        self._notes.append(Scale._Note(chr(n), acc))
                     if (root_note == chr(n) and acc == root_acc):  # if this our start,
-                        self.pointer = len(self.notes) - 1
+                        self.pointer = len(self._notes) - 1
 
         def __len__(self):
-            return self._size
+            return len(self._notes)
+
+        def __getitem__(self, position):
+            position += self.pointer
+            if position >= len(self._notes):
+                position %= len(self._notes)
+            return self._notes[position]
 
         def is_empty(self):
             return self._size == 0
@@ -160,7 +166,12 @@ class Scale:
         Scale._Note.isvalid('G#')
         Scale._Note.isvalid('T')
         Scale._Note.isvalid('B%')
-        Scale._Chromatic('Db')
+        s = Scale._Chromatic('Db')
+        print(s[0])
+        print(s[-1])
+        print(s[4])
+        print(s[-12])
+
 
 
     @classmethod
