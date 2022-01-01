@@ -43,13 +43,19 @@ class Scale:
 
         def __init__(self, root):
             self.notes = []
-            acc = 0  # creating accidentals
+            root_note, root_acc = Scale._Note.parsestring(root)
+            if root_acc < 0:  # if the root note is flat
+                accs = (-1, 0)  # use flats in the chromatic scale
+                exclude = ('C', 'F')  # ie. C-flat is just B
+            else:
+                accs = (0, 1)  # otherwise use sharps
+                exclude = ('B', 'E')  # ie. E-sharp is just F
             for n in range(ord('A'), ord('H')):
-                for acc in (0, 1):
-                    root_tup = Scale._Note.parsestring(root)
-                    is_root = (root_tup[0] == chr(n) and acc == root_tup[1])  # return True or False
-                    self.notes.append(Scale._Note(chr(n), acc, is_root))
-                    # acc ^= 1  # switches between 1 and 0
+                for acc in accs:
+                    if chr(n) not in exclude or acc == 0:
+                        self.notes.append(Scale._Note(chr(n), acc))
+                    if (root_note == chr(n) and acc == root_acc):  # if this our start,
+                        self.pointer = len(self.notes) - 1
 
         def __len__(self):
             return self._size
@@ -75,7 +81,7 @@ class Scale:
                 note_name, *acc = [char for char in note]  # split up a string
                 assert note_name in [chr(n) for n in range(ord('A'), ord('H'))]
             except AssertionError:
-                raise BadNoteError
+                raise BadNoteError(note)
             x = 0
             for char in acc:
                 if char in ('#', '\u266f'):  # final all sharps
@@ -83,7 +89,7 @@ class Scale:
                 elif char in ('b', '\u266d'):  # find all flats
                     x -= 1
                 else:
-                    raise BadNoteError
+                    raise BadNoteError(note)
             return (note_name, x)  # return as tuple
 
         @classmethod
@@ -154,7 +160,7 @@ class Scale:
         Scale._Note.isvalid('G#')
         Scale._Note.isvalid('T')
         Scale._Note.isvalid('B%')
-        Scale._Chromatic('C')
+        Scale._Chromatic('Db')
 
 
     @classmethod
