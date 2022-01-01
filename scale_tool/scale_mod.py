@@ -12,12 +12,12 @@ class NoRootError(ValueError):
         super(NoRootError, self).__init__(self.message, *args)
 
 
-class BadRootError(ValueError):
+class BadNoteError(ValueError):
     """the note you defined is not part of the Western Scale"""
-    def __init__(self, root, *args):
+    def __init__(self, root=None, *args):
         self.message = 'the note you defined is not part of the Western Scale'
         self.root = root
-        super(BadRootError, self).__init__(self.message, self.root, *args)
+        super(BadNoteError, self).__init__(self.message, self.root, *args)
 
 
 class BadScaleError(ValueError):
@@ -36,8 +36,28 @@ class Scale:
     Using 'scale', we will create a chromatic scale, with notes that have diatonic flags within. The type of diatonic scale is specified when we 
     create the new Scale Object.
     """
+    class _Chromatic:
+        """
+        Create a scale a round-robin sequence of chromatic notes, given 
+        """
 
-    class Note:
+        def __init__(self, root):
+            self.notes = []
+            acc = 0  # creating accidentals
+            for n in range(ord('A'), ord('H')):
+                for acc in (0, 1):
+                    root_tup = Scale._Note.parsestring(root)
+                    is_root = (root_tup[0] == chr(n) and acc == root_tup[1])  # return True or False
+                    self.notes.append(Scale._Note(chr(n), acc, is_root))
+                    # acc ^= 1  # switches between 1 and 0
+
+        def __len__(self):
+            return self._size
+
+        def is_empty(self):
+            return self._size == 0
+
+    class _Note:
         """
         Dialing back the complexity of this object. Notes are composed of a
         'name' (A-G) as well as an 'accidental' (number of sharps and flats).
@@ -48,24 +68,56 @@ class Scale:
         Let's gooo
         """
 
+        @classmethod
+        def parsestring(cls, note):
+            "will attempt to create a tuple of name/accidental, given a string"
+            try:
+                note_name, *acc = [char for char in note]  # split up a string
+                assert note_name in [chr(n) for n in range(ord('A'), ord('H'))]
+            except AssertionError:
+                raise BadNoteError
+            x = 0
+            for char in acc:
+                if char in ('#', '\u266f'):  # final all sharps
+                    x += 1
+                elif char in ('b', '\u266d'):  # find all flats
+                    x -= 1
+                else:
+                    raise BadNoteError
+            return (note_name, x)  # return as tuple
 
-        def __str__(self):
-            suffix = ''
-            if self.accidental < 0:
-                suffix = 'b' * abs(self.accidental)
-            elif self.accidental > 0:
-                suffix = '#' * abs(self.accidental)
-            return self.note_name + suffix.replace('b', '\u266d') \
-                .replace('#', '\u266f')
+        @classmethod
+        def isvalid(cls, note):
+            "check if a note is valid or not"
+            try:
+                cls.parsestring(note)
+            except BadNoteError:
+                return False
+            return True
+
+        def __init__(self, note_name, accidental, focused=False):
+            self._note_name = note_name  # A-G
+            self._next = next  # ?
+            self._accidental = accidental  # + for sharps, - for flats
+            self.dia_role = False  # its role in forming a diatonic scale
+            self._focused = focused  # is considered to be the root/start of sequence
+
+        # def __str__(self):
+        #     suffix = ''
+        #     if self.accidental < 0:
+        #         suffix = 'b' * abs(self.accidental)
+        #     elif self.accidental > 0:
+        #         suffix = '#' * abs(self.accidental)
+        #     return self.note_name + suffix.replace('b', '\u266d') \
+        #         .replace('#', '\u266f')
 
         def __repr__(self):
             suffix = ''
-            if self.accidental < 0:
-                suffix = 'b' * abs(self.accidental)
-            elif self.accidental > 0:
-                suffix = '#' * self.accidental
-            return self.note_name + suffix.replace('b', '\u266d') \
-                .replace('#', '\u266f')
+            if self._accidental < 0:
+                suffix = '\u266d' * abs(self._accidental)
+            elif self._accidental > 0:
+                suffix = '\u266f' * self._accidental
+            return self._note_name + suffix
 
 
     notes = [chr(n) for n in range(ord('A'), ord('H'))]
@@ -96,6 +148,13 @@ class Scale:
     }
 
     def __init__(self, **kwargs):
+        Scale._Note.parsestring('D')
+        Scale._Note.parsestring('Ab')
+        Scale._Note.parsestring('F#')
+        Scale._Note.isvalid('G#')
+        Scale._Note.isvalid('T')
+        Scale._Note.isvalid('B%')
+        Scale._Chromatic('C')
 
 
     @classmethod
@@ -108,5 +167,6 @@ class Scale:
         "return all possible notes of the Western scale"
         return cls.all_notes
 
-
+if __name__ == "__main__":
+    c = Scale()
 
