@@ -3,16 +3,12 @@ import sys
 import unittest as unittest
 sys.path.append('../scale_tool')
 
-from scale_tool.scale_mod import Scale
+from scale_tool.scale_mod import BadNoteError, Scale
 
 
-class Test(unittest.TestCase):
+class TestNote(unittest.TestCase):
+    "tests for Note's class methods"
 
-    @unittest.skip("not yet implemented")
-    def test_chromatic_scale(self):
-        s = Scale(root='c', scale_name='major')
-        self.assertEqual(s.get_chromatic_scale(), ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
-                     'A', 'A#', 'B', 'C'])
 
     def test_note_parsestring(self):
         "test the class method for Note"
@@ -26,6 +22,70 @@ class Test(unittest.TestCase):
         for i, o in zip(input, output):
             self.assertEqual(Scale._Note.parsestring(i), o)
 
+    def test_note_error(self):
+        input = ['H', 'a', 'B%', 'bb']
+        for i in input:
+            with self.assertRaises(BadNoteError):
+                Scale._Note.parsestring(i)
+
+    def test_note_valid(self):
+        input1 = ['H', 'a', 'B%', 'bb']
+        input2 = ['C#', 'Bbb', 'E#', 'G\u266d']
+        for i in input1:
+            self.assertFalse(Scale._Note.isvalid(i))
+        for i in input2:
+            self.assertTrue(Scale._Note.isvalid(i))
+
+    def test_down(self):
+        input = [('D', 0),
+                 ('C', 0),
+                 ('F', 1),
+                 ('E', -1),
+                 ('A', -1)]
+        output = [('C', 2),
+                  ('B', 1),
+                  ('E', 2),
+                  ('D', 1),
+                  ('G', 1)]
+        for i, o in zip(input, output):
+            self.assertEqual(Scale._Note.step_down(i), o)
+
+    def test_up(self):
+        input = [('C', 2),
+                  ('B', 1),
+                  ('E', 2),
+                  ('D', 1),
+                  ('G', 1)]
+        output = [('D', 0),
+                 ('C', 0),
+                 ('F', 1),
+                 ('E', -1),
+                 ('A', -1)]
+        for i, o in zip(input, output):
+            self.assertEqual(Scale._Note.step_up(i), o)
+    
+    def test_eq(self):
+        s = Scale._Note('C', 1)
+        si = Scale._Note('D', -1)
+        input = ('C#', 'Db', 'B##', si, ('C', 1))
+        for i in input:
+            self.assertTrue(s == i)
+        input2 = ('C', 'F', ('D', 2))
+        for i in input2:
+            self.assertFalse(s == i)
+
+class TestChromatic(unittest.TestCase):
+    "testing chromatic scale stuff"
+
+    @unittest.skip("not yet implemented")
+    def test_chromatic_scale(self):
+        s = Scale(root='c', scale_name='major')
+        self.assertEqual(s.get_chromatic_scale(), ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
+                     'A', 'A#', 'B', 'C'])
+
+class TestScale(unittest.TestCase):
+    "diatonic scale tests" 
+    
     # def test_c_maj(self):
     #     s = Scale(root='c', scale_name='major')
     #     self.assertEqual(s.get_scale_notes(), ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C'])
@@ -43,11 +103,6 @@ class Test(unittest.TestCase):
     #     for key in key_list:
     #         self.assertEqual(s.get_interval(key_list.index(key)+1), key)
 
-    # # @unittest.skip('check that previsou test succeeds')
-    # def test_bad_interval(self):
-    #     s = Scale(root='c', scale_name='major')
-    #     with self.assertRaises(AssertionError):
-    #         s.get_interval(9)
 
     # def test_bad_root(self):
     #     # s = Scale('2')
@@ -68,22 +123,12 @@ class Test(unittest.TestCase):
     #     s = Scale(root='e', scale_name='minor')
     #     self.assertEqual(s.get_scale_notes(), correct)
 
-    # def test_locrian(self):
-    #     correct = ['D', 'D#', 'F', 'G', 'G#', 'A#', 'C', 'D']
-    #     s = Scale(root='d', scale_name='LOCRIAN')
-    #     self.assertEqual(s.get_scale_notes(), correct)
 
     # def test_flat_scale(self):
     #     correct = ['D', 'Eb', 'F', 'G', 'Ab', 'Bb', 'C', 'D']
     #     s = Scale(root='d', scale_name='LOCRIAN')
     #     self.assertEqual(s.get_flat_scale(), correct)
 
-    # @unittest.skip('this is not implemented yet')
-    # def test_finer_adjustment(self):
-    #     "the concept behind is to be able to set dominant, diminished, natural intervals"
-    #     "in this example, we set a diminished third"
-    #     correct = ['C', 'D', 'D#', 'F', 'G', 'A', 'B']
-    #     s = Scale(ROOT='c', degree={3, -0.5})
 
 if __name__ == '__main__':
     unittest.main()
