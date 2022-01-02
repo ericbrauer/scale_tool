@@ -185,6 +185,14 @@ class Scale:
                 return self.dia_role[1]
             else:
                 return self.dia_role[0]
+        
+        # not sure if this is the right approach
+        def __contains__(self, interval):
+            "sees if an interval is in the note"
+            for i in self.dia_role:
+                if i == interval:
+                    return interval
+            return None
 
         def __eq__(self, other):
             "compare two notes"
@@ -224,7 +232,7 @@ class Scale:
 
 # this way of defining intervals sucks, actually.
     scales = {
-        'major': ['1', '2', '3', '4', '5', '6', '7'],
+        'major': ['P1', 'M2', 'M3', 'P4', 'P5', 'M6', 'M7'],
         'minor': ['1', '2', 'b3', '4', '5', 'b6', 'b7'],
         'melodic_minor': ['1', '2', 'b3', '4', '5', '6', '7'],
         'harmonic_minor': ['1', '2', 'b3', '4', '5', 'b6', '7'],
@@ -248,8 +256,23 @@ class Scale:
     }
 
     def __init__(self, **kwargs):
-        s = Scale._Chromatic('C')
-        print(s[0].get_interval())
+        self._chr_scale = Scale._Chromatic('C')
+        # print(s[0].get_interval())
+        scale = 'major'
+        self.dia_name = self.scales.get(scale)  # hardcoded right now, change!
+        self.dia_scale = self.create_diatonic()
+        print(self.dia_scale)
+
+    def create_diatonic(self):
+        output = []
+        intervals = self.dia_name
+        chr = self._chr_scale
+        for step in intervals:
+            for note in chr:  # issue here is that we start from the beginning of the chromatic scale each time
+                if step in note:
+                    output.append(note)
+                    break
+        return output
 
 
 
