@@ -148,6 +148,27 @@ class Scale:
             self.dia_role = False  # its role in forming a diatonic scale
             self._use_flats = use_flats  # When notes are printed, use flat alias
             self._flat_alias = self.step_up((self._note_name, self._accidental))
+            self._sharp_alias = self.step_down((self._note_name, self._accidental))
+
+        def __eq__(self, other):
+            "compare two notes"
+            if isinstance(other, str):
+                on, oa = self.parsestring(other)
+                o = Scale._Note(on, oa)
+            if isinstance(other, tuple):
+                on, oa = other
+                o = Scale._Note(on, oa)
+            elif isinstance(other, Scale._Note):
+                o = other
+            ot = o.return_tuple()
+            if ot == self.return_tuple():
+                return True
+            elif ot == self._sharp_alias:
+                return True
+            elif ot == self._flat_alias:
+                return True
+            else:
+                return False
 
         def __repr__(self):
             if self._use_flats and self._accidental != 0:
@@ -161,6 +182,9 @@ class Scale:
             elif acc > 0:
                 suffix = '\u266f' * acc
             return name + suffix
+        
+        def return_tuple(self):
+            return (self._note_name, self._accidental)
 
 # this way of defining intervals sucks, actually.
     scales = {
@@ -201,7 +225,13 @@ class Scale:
         Scale._Note.isvalid('B%')
         s = Scale._Chromatic('C#')
         print(s)
-        print(s[0])
+        print(s[0] == 'C#')
+        print(s[0] == 'Db')
+        print(s[0] == 'B##')
+        print(s[0] == 'C')
+        print(s[4] == ('F', 0))
+        n = Scale._Note('D', -1)
+        print(s[12] == n)
         print(s[-1])
         print(s[4])
         print(s[-12])
