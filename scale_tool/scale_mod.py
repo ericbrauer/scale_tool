@@ -72,6 +72,14 @@ class Scale:
                         self._notes.append(Scale._Note(chr(n), acc, use_flats))
                     if (root_note == chr(n) and acc == root_acc):  # if this our start,
                         self.pointer = len(self._notes) - 1
+            self.set_intervals()
+
+
+        def set_intervals(self):
+            "apply intervals to the chromatic scale"
+            notes = self._notes[self.pointer:] + self._notes[:self.pointer]
+            for n, i in zip(notes, self.intervals):
+                n.set_interval(i)
 
         def __len__(self):
             return len(self._notes)
@@ -241,6 +249,7 @@ class Scale:
 
     def __init__(self, **kwargs):
         s = Scale._Chromatic('C')
+        print(s[0].get_interval())
 
 
 
