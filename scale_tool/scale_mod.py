@@ -41,6 +41,22 @@ class Scale:
         Create a scale a round-robin sequence of chromatic notes, given 
         """
 
+        intervals = [
+            ['P1', 'd2'],  # Perfect unison   Diminished second
+            ['m2', 'A1'],  # Minor second     Augmented unison
+            ['M2', 'd3'],  # Major second     Diminished third
+            ['m3', 'A2'],  # Minor third      Augmented second
+            ['M3', 'd4'],  # Major third      Diminished fourth
+            ['P4', 'A3'],  # Perfect fourth   Augmented third
+            ['d5', 'A4'],  # Diminished fifth Augmented fourth
+            ['P5', 'd6'],  # Perfect fifth    Diminished sixth
+            ['m6', 'A5'],  # Minor sixth      Augmented fifth
+            ['M6', 'd7'],  # Major sixth      Diminished seventh
+            ['m7', 'A6'],  # Minor seventh    Augmented sixth
+            ['M7', 'd8'],  # Major seventh    Diminished octave
+            ['P8', 'A7'],  # Perfect octave   Augmented seventh
+        ]
+
         def __init__(self, root):
             use_flats = False
             self._notes = []
@@ -145,10 +161,22 @@ class Scale:
             self._note_name = note_name  # A-G
             self._next = next  # ?
             self._accidental = accidental  # + for sharps, - for flats
-            self.dia_role = False  # its role in forming a diatonic scale
+            self.dia_role = []  # its role in forming a diatonic scale
             self._use_flats = use_flats  # When notes are printed, use flat alias
             self._flat_alias = self.step_up((self._note_name, self._accidental))
             self._sharp_alias = self.step_down((self._note_name, self._accidental))
+
+        def set_interval(self, intervals):
+            "intervals here are a list of two"
+            "for example, maj 3rd, dim 4th"
+            self.dia_role = intervals
+
+        def get_interval(self, alt=False):
+            "return first interval, unless specified"
+            if alt:
+                return self.dia_role[1]
+            else:
+                return self.dia_role[0]
 
         def __eq__(self, other):
             "compare two notes"
