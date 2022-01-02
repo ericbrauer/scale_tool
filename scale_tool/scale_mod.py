@@ -42,18 +42,18 @@ class Scale:
         """
 
         def __init__(self, root):
+            use_flats = False
             self._notes = []
             root_note, root_acc = Scale._Note.parsestring(root)
             if root_acc < 0:  # if the root note is flat
-                accs = (-1, 0)  # use flats in the chromatic scale
-                exclude = ('C', 'F')  # ie. C-flat is just B
-            else:
-                accs = (0, 1)  # otherwise use sharps
-                exclude = ('B', 'E')  # ie. E-sharp is just F
+                root_note, root_acc = Scale._Note.step_down((root_note, root_acc))
+                use_flats = True
+            accs = (0, 1)  # otherwise use sharps
+            exclude = ('B', 'E')  # ie. E-sharp is just F
             for n in range(ord('A'), ord('H')):
                 for acc in accs:
                     if chr(n) not in exclude or acc == 0:
-                        self._notes.append(Scale._Note(chr(n), acc))
+                        self._notes.append(Scale._Note(chr(n), acc, use_flats))
                     if (root_note == chr(n) and acc == root_acc):  # if this our start,
                         self.pointer = len(self._notes) - 1
 
@@ -66,8 +66,14 @@ class Scale:
                 position %= len(self._notes)
             return self._notes[position]
 
-        def is_empty(self):
-            return self._size == 0
+        def __repr__(self):
+            return str(self._notes[self.pointer:] + self._notes[:self.pointer])
+
+        def start_at(self, note):
+            try:
+                self.pointer = self._notes.index(note)
+            except ValueError:
+                print("Problem!")
 
     class _Note:
         """
@@ -107,32 +113,54 @@ class Scale:
                 return False
             return True
 
-        def __init__(self, note_name, accidental, focused=False):
+        @classmethod
+        def step_down(cls, note_tup):
+            "eg. changes a D-flat into a C-sharp"
+            notename, acc = note_tup
+            n = ord(notename) - 1
+            if n == 64:  # changes an A to a G
+                n = 71
+            new_nname = chr(n)
+            if new_nname in ('B', 'E'):  # only one half-step btwn B and C.
+                acc += 1
+            else:
+                acc += 2
+            return (new_nname, acc)
+
+        @classmethod
+        def step_up(cls, note_tup):
+            "eg. changes a C-sharp into D-flat"
+            notename, acc = note_tup
+            n = ord(notename) + 1
+            if n == 72:  # changes a G to an A
+                n = 65
+            new_nname = chr(n)
+            if new_nname in ('C', 'F'):  # only one half-step btwn B and C.
+                acc -= 1
+            else:
+                acc -= 2
+            return (new_nname, acc)
+
+        def __init__(self, note_name, accidental, use_flats=False):
             self._note_name = note_name  # A-G
             self._next = next  # ?
             self._accidental = accidental  # + for sharps, - for flats
             self.dia_role = False  # its role in forming a diatonic scale
-            self._focused = focused  # is considered to be the root/start of sequence
-
-        # def __str__(self):
-        #     suffix = ''
-        #     if self.accidental < 0:
-        #         suffix = 'b' * abs(self.accidental)
-        #     elif self.accidental > 0:
-        #         suffix = '#' * abs(self.accidental)
-        #     return self.note_name + suffix.replace('b', '\u266d') \
-        #         .replace('#', '\u266f')
+            self._use_flats = use_flats  # When notes are printed, use flat alias
+            self._flat_alias = self.step_up((self._note_name, self._accidental))
 
         def __repr__(self):
+            if self._use_flats and self._accidental != 0:
+                name, acc = self._flat_alias
+            else:
+                name = self._note_name
+                acc = self._accidental
             suffix = ''
-            if self._accidental < 0:
-                suffix = '\u266d' * abs(self._accidental)
-            elif self._accidental > 0:
-                suffix = '\u266f' * self._accidental
-            return self._note_name + suffix
-
-
-    notes = [chr(n) for n in range(ord('A'), ord('H'))]
+            if acc < 0:
+                suffix = '\u266d' * abs(acc)
+            elif acc > 0:
+                suffix = '\u266f' * acc
+            return name + suffix
 
 # this way of defining intervals sucks, actually.
     scales = {
@@ -160,17 +188,25 @@ class Scale:
     }
 
     def __init__(self, **kwargs):
-        Scale._Note.parsestring('D')
+        Scale._Note.step_down(Scale._Note.parsestring('D'))
+        Scale._Note.step_down(Scale._Note.parsestring('C'))
+        Scale._Note.step_down(Scale._Note.parsestring('F'))
+        Scale._Note.step_down(Scale._Note.parsestring('E'))
+        Scale._Note.step_down(Scale._Note.parsestring('Eb'))
+        Scale._Note.step_down(Scale._Note.parsestring('A#'))
         Scale._Note.parsestring('Ab')
         Scale._Note.parsestring('F#')
         Scale._Note.isvalid('G#')
         Scale._Note.isvalid('T')
         Scale._Note.isvalid('B%')
-        s = Scale._Chromatic('Db')
+        s = Scale._Chromatic('C#')
+        print(s)
         print(s[0])
         print(s[-1])
         print(s[4])
         print(s[-12])
+        for note in s:
+            print(note)
 
 
 
