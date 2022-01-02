@@ -213,13 +213,6 @@ class Scale:
 
     def __init__(self, **kwargs):
         s = Scale._Chromatic('C')
-        # s = Scale._Chromatic('C#')
-        # print(s)
-        # print(s[-1])
-        # print(s[4])
-        # print(s[-12])
-        # for note in s:
-        #     print(note)
 
 
 

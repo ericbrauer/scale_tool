@@ -74,15 +74,29 @@ class TestNote(unittest.TestCase):
         for i in input2:
             self.assertFalse(s == i)
 
-class TestChromatic(unittest.TestCase):
-    "testing chromatic scale stuff"
 
-    @unittest.skip("not yet implemented")
-    def test_chromatic_scale(self):
-        s = Scale(root='c', scale_name='major')
-        self.assertEqual(s.get_chromatic_scale(), ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
-                     'A', 'A#', 'B', 'C'])
+class TestChromaticC(unittest.TestCase):
 
+    def setUp(self) -> None:
+        self.s = Scale._Chromatic("C")
+
+    def test_scale(self):
+        expected = "[C, C\u266f, D, D\u266f, E, F, F\u266f, G, G\u266f, A, A\u266f, B]"
+        self.assertEqual(str(self.s), expected)
+
+    def test_items(self):
+        data = {
+                 0: 'C',
+                 1: 'C\u266f',
+                 4: 'E',
+                 -1: 'B', 
+                 12: 'C',
+                 -12: 'C',
+                 -3: 'A'
+                }
+        for k, v in data.items():
+            self.assertEqual(str(self.s[k]), v)
+    
 class TestScale(unittest.TestCase):
     "diatonic scale tests" 
     
@@ -95,14 +109,6 @@ class TestScale(unittest.TestCase):
     #     for key in key_list:
     #         s = Scale(root=key, scale_name='major')
     #         self.assertEqual(s.root, key)
-
-    # @unittest.skip('back to drawing board')
-    # def test_intervals(self):
-    #     key_list = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C']
-    #     s = Scale(root='c', scale_name='major')
-    #     for key in key_list:
-    #         self.assertEqual(s.get_interval(key_list.index(key)+1), key)
-
 
     # def test_bad_root(self):
     #     # s = Scale('2')
