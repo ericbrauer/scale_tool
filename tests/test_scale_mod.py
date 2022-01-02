@@ -97,6 +97,54 @@ class TestChromaticC(unittest.TestCase):
         for k, v in data.items():
             self.assertEqual(str(self.s[k]), v)
     
+
+
+class TestChromaticCSharp(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.s = Scale._Chromatic("C#")
+
+    def test_scale(self):
+        expected = "[C\u266f, D, D\u266f, E, F, F\u266f, G, G\u266f, A, A\u266f, B, C]"
+        self.assertEqual(str(self.s), expected)
+
+    def test_items(self):
+        data = {
+                 0: 'C\u266f',
+                 1: 'D',
+                 4: 'F',
+                 -1: 'C', 
+                 12: 'C\u266f',
+                 -12: 'C\u266f',
+                 -5: 'G\u266f'
+                }
+        for k, v in data.items():
+            self.assertEqual(str(self.s[k]), v)
+
+
+class TestChromaticDFlat(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.s = Scale._Chromatic("Db")
+
+    def test_scale(self):
+        expected = "[D\u266d, D, E\u266d, E, F, G\u266d, G, A\u266d, A, B\u266d, B, C]"
+        self.assertEqual(str(self.s), expected)
+
+    def test_items(self):
+        data = {
+                 0: 'D\u266d',
+                 1: 'D',
+                 5: 'G\u266d',
+                 -1: 'C', 
+                 12: 'D\u266d',
+                 -12: 'D\u266d',
+                 -4: 'A'
+                }
+        for k, v in data.items():
+            self.assertEqual(str(self.s[k]), v)
+
+
 class TestScale(unittest.TestCase):
     "diatonic scale tests" 
     
