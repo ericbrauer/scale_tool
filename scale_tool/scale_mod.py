@@ -266,9 +266,10 @@ class Scale:
     def create_diatonic(self):
         output = []
         intervals = self.dia_name
-        chr = self._chr_scale
+        note_gen = (n for n in self._chr_scale)  # creates a generator
         for step in intervals:
-            for note in chr:  # issue here is that we start from the beginning of the chromatic scale each time
+            while True:
+                note = next(note_gen)  # get next note in sequence
                 if step in note:
                     output.append(note)
                     break
