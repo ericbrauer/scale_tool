@@ -230,19 +230,17 @@ class Scale:
             return (self._note_name, self._accidental)
 
 # this way of defining intervals sucks, actually.
-    scales = {
+    scales = {  # key: P: perfect, M: major, m: minor
         'major': ['P1', 'M2', 'M3', 'P4', 'P5', 'M6', 'M7'],
-        'minor': ['1', '2', 'b3', '4', '5', 'b6', 'b7'],
-        'melodic_minor': ['1', '2', 'b3', '4', '5', '6', '7'],
-        'harmonic_minor': ['1', '2', 'b3', '4', '5', 'b6', '7'],
-        'major_blues': ['1', '2', 'b3', '3', '5', '6'],
-        'minor_blues': ['1', 'b3', '4', 'b5', '5', 'b7'],
-        'pentatonic_major': ['1', '2', '3', '5', '6'],
-        'pentatonic_minor': ['1', 'b3', '4', '5', 'b7'],
-        'pentatonic_blues': ['1', 'b3', '4', 'b5', '5', 'b7']
+        'minor': ['P1', 'M2', 'm3', 'P4', 'P5', 'm6', 'm7'],
+        'melodic_minor': ['P1', 'M2', 'm3', 'P4', 'P5', 'M6', 'M7'],
+        'harmonic_minor': ['P1', 'M2', 'm3', 'P4', 'P5', 'm6', 'M7'],
+        'major_blues': ['P1', 'M2', 'm3', 'M3', 'P5', 'M6'],
+        'minor_blues': ['P1', 'm3', 'P4', 'd5', 'P5', 'm7'],
+        'pentatonic_major': ['P1', 'M2', 'M3', 'P5', 'M6'],
+        'pentatonic_minor': ['P1', 'm3', 'P4', 'P5', 'm7'],
+        'pentatonic_blues': ['P1', 'm3', 'P4', 'd5', 'P5', 'm7']
     }
-
-    maj_formula = [2, 2, 1, 2, 2, 2, 1]
 
     modes = {
         'ionian':       [0, 1, 1, 0.5, 1, 1, 1, 0.5],
@@ -283,7 +281,13 @@ class Scale:
                     break
                 elif placeholder is not False:
                     output.append(placeholder)
+                    # TODO make sure that no notenames repeat. Use Gflat to test.
         return output
+
+    def index(self, note):
+        "return the position of note"
+        return self.dia_scale.index(note)
+        
 
     def __len__(self):
         return len(self.dia_scale)
@@ -305,6 +309,9 @@ class Scale:
         return cls.all_notes
 
 if __name__ == "__main__":
-    c = Scale(root='C', scale='major')
-    print(c)
+    for i in ['C', 'C#', 'Db', 'D', 'Gb', 'G']:
+        c = Scale(root=i, scale='major')
+        print(c)
+    x = c.index('G#')
+    print(x)
 

@@ -151,6 +151,22 @@ class TestScale(unittest.TestCase):
         s = Scale(root='C', scale='major')
         self.assertEqual(str(s), '[C, D, E, F, G, A, B]')
 
+    def test_majors(self):
+        "there should be one note name per scale"
+        input = ['C', 'C#', 'Db', 'D', 'Gb', 'G']
+        output = [
+            '[C, D, E, F, G, A, B]',
+            '[C♯, D♯, E♯, F♯, G♯, A♯, B♭]',
+            '[D♭, E♭, F, G♭, A♭, B♭, C]',
+            '[D, E, F♯, G, A, B, C♯]',
+            '[G♭, A♭, B♭, C♭, D♭, E♭, F]',
+            '[G, A, B, C, D, E, F♯]'
+            ]
+        for i, o in zip(input, output):
+            s = Scale(root=i, scale='major')
+            self.assertEqual(str(s), o)
+
+
     # def test_roots(self):
     #     key_list = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'D#', 'C']
     #     for key in key_list:
