@@ -96,7 +96,6 @@ class TestChromaticC(unittest.TestCase):
                 }
         for k, v in data.items():
             self.assertEqual(str(self.s[k]), v)
-    
 
 
 class TestChromaticCSharp(unittest.TestCase):
@@ -146,11 +145,11 @@ class TestChromaticDFlat(unittest.TestCase):
 
 
 class TestScale(unittest.TestCase):
-    "diatonic scale tests" 
-    
-    # def test_c_maj(self):
-    #     s = Scale(root='c', scale_name='major')
-    #     self.assertEqual(s.get_scale_notes(), ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C'])
+    "diatonic scale tests"
+
+    def test_c_maj(self):
+        s = Scale(root='C', scale='major')
+        self.assertEqual(str(s), '[C, D, E, F, G, A, B]')
 
     # def test_roots(self):
     #     key_list = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'D#', 'C']

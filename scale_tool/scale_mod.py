@@ -167,7 +167,6 @@ class Scale:
 
         def __init__(self, note_name, accidental, use_flats=False):
             self._note_name = note_name  # A-G
-            self._next = next  # ?
             self._accidental = accidental  # + for sharps, - for flats
             self.dia_role = []  # its role in forming a diatonic scale
             self._use_flats = use_flats  # When notes are printed, use flat alias
@@ -256,16 +255,24 @@ class Scale:
     }
 
     def __init__(self, **kwargs):
-        self._chr_scale = Scale._Chromatic('C')
-        # print(s[0].get_interval())
-        scale = 'major'
-        self.dia_name = self.scales.get(scale)  # hardcoded right now, change!
-        self.dia_scale = self.create_diatonic()
-        print(self.dia_scale)
+        try:
+            self.root = kwargs['root']
+        except KeyError:
+            raise NoRootError()
 
-    def create_diatonic(self):
+        self._chr_scale = Scale._Chromatic(self.root)
+
+        try:
+            self.dia_name = kwargs['scale']
+            assert self.dia_name in self.scales.keys()
+        except (KeyError, AssertionError):
+            raise BadScaleError(self.dia_name)
+        self.dia_scale = self.create_diatonic()
+
+    def create_diatonic(self, placeholder=False):
+        "build a diatonic list. placeholder creates an empty item for notes not in scale"
         output = []
-        intervals = self.dia_name
+        intervals = self.scales[self.dia_name]
         note_gen = (n for n in self._chr_scale)  # creates a generator
         for step in intervals:
             while True:
@@ -273,9 +280,18 @@ class Scale:
                 if step in note:
                     output.append(note)
                     break
+                elif placeholder is not False:
+                    output.append(placeholder)
         return output
 
+    def __len__(self):
+        return len(self.dia_scale)
 
+    def __getitem__(self, position):
+        return self.dia_scale[position]
+
+    def __repr__(self):
+        return str(self.dia_scale)
 
     @classmethod
     def get_scales(cls):
@@ -288,5 +304,6 @@ class Scale:
         return cls.all_notes
 
 if __name__ == "__main__":
-    c = Scale()
+    c = Scale(root='C', scale='major')
+    print(c)
 
