@@ -175,20 +175,30 @@ class TestScale(unittest.TestCase):
         with self.assertRaises(BadScaleError):
             s = Scale(root='C', scale='garbage')
 
-    # def test_minor(self):
-    #     correct = ['C', 'D', 'D#', 'F', 'G', 'G#', 'A#', 'C']
-    #     s = Scale(root='c', scale_name='minor')
-    #     self.assertEqual(s.get_scale_notes(), correct)
+    def test_minor(self):
+        correct = "[C, D, E♭, F, G, A♭, B♭]" 
+        s = Scale(root='C', scale='minor')
+        self.assertEqual(str(s), correct)
 
-    # def test_minor_e(self):
-    #     correct = ['E', 'F#', 'G', 'A', 'B', 'C', 'D', 'E']
-    #     s = Scale(root='e', scale_name='minor')
-    #     self.assertEqual(s.get_scale_notes(), correct)
+    def test_minor_e(self):
+        correct = "[E, F♯, G, A, B, C, D]"
+        s = Scale(root='E', scale='minor')
+        self.assertEqual(str(s), correct)
 
-    # def test_flat_scale(self):
-    #     correct = ['D', 'Eb', 'F', 'G', 'Ab', 'Bb', 'C', 'D']
-    #     s = Scale(root='d', scale_name='LOCRIAN')
-    #     self.assertEqual(s.get_flat_scale(), correct)
+    def test_minors(self):
+        "there should be one note name per scale"
+        input = ['C', 'C#', 'Db', 'D', 'Gb', 'G']
+        output = [
+            '[C, D, E♭, F, G, A♭, B♭]',
+            '[C♯, D♯, E, F♯, G♯, A, B]',
+            '[D♭, E♭, F♭, G♭, A♭, B♭♭, C♭]',
+            '[D, E, F, G, A, B♭, C]',
+            '[G♭, A♭, B♭♭, C♭, D♭, E♭♭, F♭]',
+            '[G, A, B♭, C, D, E♭, F]',
+            ]
+        for i, o in zip(input, output):
+            s = Scale(root=i, scale='minor')
+            self.assertEqual(str(s), o)
 
 
 if __name__ == '__main__':

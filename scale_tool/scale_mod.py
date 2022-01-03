@@ -301,8 +301,8 @@ class Scale:
                 note = next(note_gen)  # get next note in sequence
                 if step in note:
                     let = ord(note.return_tuple()[0])  # 65 from A#
-                    if let == 65:  # if current is A
-                        prev = 64  # replace G with this
+                    if let == 65 and prev != 65:  # if current is A
+                        prev = 64  # G becomes 1 before A
                     if let - prev > 1 and not first:  # eg: A - C = 2
                         note.letter_down()
                     elif let - prev < 1 and not first:  # eg: Eb - E = 0
@@ -341,8 +341,8 @@ class Scale:
 
 
 if __name__ == "__main__":
-    for i in ['C#', 'Db', 'D', 'Gb', 'G']:
-        c = Scale(root=i, scale='major')
+    for i in ['C', 'C#', 'Db', 'D', 'Gb', 'G']:
+        c = Scale(root=i, scale='minor')
         print(c)
     x = c.index('D')
     print(x)
