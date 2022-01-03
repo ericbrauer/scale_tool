@@ -190,11 +190,11 @@ class Scale:
             else:
                 self._pref_repr = (self._note_name, self._accidental)
 
-        def note_letter_up(self):
+        def letter_up(self):
             "changes pref repr so C#->Db"
             self._pref_repr = self._flat_alias
 
-        def note_letter_down(self):
+        def letter_down(self):
             "changes pref repr so Db->C#"
             self._pref_repr = self._sharp_alias
 
@@ -294,11 +294,22 @@ class Scale:
         output = []
         intervals = self.scales[self.dia_name]
         note_gen = (n for n in self._chr_scale)  # creates a generator
+        first = True
+        prev = 0
         for step in intervals:
             while True:
                 note = next(note_gen)  # get next note in sequence
                 if step in note:
+                    let = ord(note.return_tuple()[0])  # 65 from A#
+                    if let == 65:  # if current is A
+                        prev = 64  # replace G with this
+                    if let - prev > 1 and not first:  # eg: A - C = 2
+                        note.letter_down()
+                    elif let - prev < 1 and not first:  # eg: Eb - E = 0
+                        note.letter_up()
                     output.append(note)
+                    prev = ord(str(note)[0])  # grab '65' from 'A#'
+                    first = False
                     break
                 elif placeholder is not False:
                     output.append(placeholder)
@@ -330,7 +341,7 @@ class Scale:
 
 
 if __name__ == "__main__":
-    for i in ['C', 'C#', 'Db', 'D', 'Gb', 'G']:
+    for i in ['C#', 'Db', 'D', 'Gb', 'G']:
         c = Scale(root=i, scale='major')
         print(c)
     x = c.index('D')

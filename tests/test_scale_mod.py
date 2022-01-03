@@ -156,7 +156,7 @@ class TestScale(unittest.TestCase):
         input = ['C', 'C#', 'Db', 'D', 'Gb', 'G']
         output = [
             '[C, D, E, F, G, A, B]',
-            '[C♯, D♯, E♯, F♯, G♯, A♯, B♭]',
+            '[C♯, D♯, E♯, F♯, G♯, A♯, B♯]',
             '[D♭, E♭, F, G♭, A♭, B♭, C]',
             '[D, E, F♯, G, A, B, C♯]',
             '[G♭, A♭, B♭, C♭, D♭, E♭, F]',
