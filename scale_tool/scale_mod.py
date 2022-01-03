@@ -31,10 +31,12 @@ class BadScaleError(ValueError):
 
 class Scale:
     """
-    Doing a rethink. A scale is chromatic, made up of note objects. Some notes are considered to be members of a diatonic scale.
+    Doing a rethink. A scale is chromatic, made up of note objects.
+    Some notes are considered to be members of a diatonic scale.
 
-    Using 'scale', we will create a chromatic scale, with notes that have diatonic flags within. The type of diatonic scale is specified when we 
-    create the new Scale Object.
+    Using 'scale', we will create a chromatic scale,
+    with notes that have diatonic flags within. The type of 
+    diatonic scale is specified when we create the new Scale Object.
     """
     class _Chromatic:
         """
@@ -73,7 +75,6 @@ class Scale:
                     if (root_note == chr(n) and acc == root_acc):  # if this our start,
                         self.pointer = len(self._notes) - 1
             self.set_intervals()
-
 
         def set_intervals(self):
             "apply intervals to the chromatic scale"
@@ -169,8 +170,8 @@ class Scale:
             self._note_name = note_name  # A-G
             self._accidental = accidental  # + for sharps, - for flats
             self.dia_role = []  # its role in forming a diatonic scale
-            self._use_flats = use_flats  # When notes are printed, use flat alias
-            self._flat_alias = self.step_up((self._note_name, self._accidental))
+            self._use_flats = use_flats  # When notes are printed, use flats
+            self._flat_alias=self.step_up((self._note_name, self._accidental))
             self._sharp_alias = self.step_down((self._note_name, self._accidental))
 
         def set_interval(self, intervals):
@@ -184,7 +185,7 @@ class Scale:
                 return self.dia_role[1]
             else:
                 return self.dia_role[0]
-        
+
         # not sure if this is the right approach
         def __contains__(self, interval):
             "sees if an interval is in the note"
@@ -225,7 +226,7 @@ class Scale:
             elif acc > 0:
                 suffix = '\u266f' * acc
             return name + suffix
-        
+
         def return_tuple(self):
             return (self._note_name, self._accidental)
 
@@ -281,13 +282,12 @@ class Scale:
                     break
                 elif placeholder is not False:
                     output.append(placeholder)
-                    # TODO make sure that no notenames repeat. Use Gflat to test.
+                    # TODO make sure that no notenames repeat.
         return output
 
     def index(self, note):
         "return the position of note"
         return self.dia_scale.index(note)
-        
 
     def __len__(self):
         return len(self.dia_scale)
@@ -308,10 +308,10 @@ class Scale:
         "return all possible notes of the Western scale"
         return cls.all_notes
 
+
 if __name__ == "__main__":
     for i in ['C', 'C#', 'Db', 'D', 'Gb', 'G']:
         c = Scale(root=i, scale='major')
         print(c)
     x = c.index('G#')
     print(x)
-

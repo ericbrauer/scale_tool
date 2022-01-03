@@ -9,11 +9,10 @@ from scale_tool.scale_mod import BadNoteError, Scale, BadScaleError, NoRootError
 class TestNote(unittest.TestCase):
     "tests for Note's class methods"
 
-
     def test_note_parsestring(self):
         "test the class method for Note"
         input = ['D', 'C', 'F', 'E', 'Eb', 'G#']
-        output = [('D', 0), 
+        output = [('D', 0),
                   ('C', 0),
                   ('F', 0),
                   ('E', 0),
@@ -52,18 +51,18 @@ class TestNote(unittest.TestCase):
 
     def test_up(self):
         input = [('C', 2),
-                  ('B', 1),
-                  ('E', 2),
-                  ('D', 1),
-                  ('G', 1)]
+                 ('B', 1),
+                 ('E', 2),
+                 ('D', 1),
+                 ('G', 1)]
         output = [('D', 0),
-                 ('C', 0),
-                 ('F', 1),
-                 ('E', -1),
-                 ('A', -1)]
+                  ('C', 0),
+                  ('F', 1),
+                  ('E', -1),
+                  ('A', -1)]
         for i, o in zip(input, output):
             self.assertEqual(Scale._Note.step_up(i), o)
-    
+
     def test_eq(self):
         s = Scale._Note('C', 1)
         si = Scale._Note('D', -1)
@@ -89,7 +88,7 @@ class TestChromaticC(unittest.TestCase):
                  0: 'C',
                  1: 'C\u266f',
                  4: 'E',
-                 -1: 'B', 
+                 -1: 'B',
                  12: 'C',
                  -12: 'C',
                  -3: 'A'
@@ -112,7 +111,7 @@ class TestChromaticCSharp(unittest.TestCase):
                  0: 'C\u266f',
                  1: 'D',
                  4: 'F',
-                 -1: 'C', 
+                 -1: 'C',
                  12: 'C\u266f',
                  -12: 'C\u266f',
                  -5: 'G\u266f'
@@ -135,7 +134,7 @@ class TestChromaticDFlat(unittest.TestCase):
                  0: 'D\u266d',
                  1: 'D',
                  5: 'G\u266d',
-                 -1: 'C', 
+                 -1: 'C',
                  12: 'D\u266d',
                  -12: 'D\u266d',
                  -4: 'A'
@@ -166,13 +165,6 @@ class TestScale(unittest.TestCase):
             s = Scale(root=i, scale='major')
             self.assertEqual(str(s), o)
 
-
-    # def test_roots(self):
-    #     key_list = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'D#', 'C']
-    #     for key in key_list:
-    #         s = Scale(root=key, scale_name='major')
-    #         self.assertEqual(s.root, key)
-
     def test_bad_root(self):
         # s = Scale('2')
         with self.assertRaises(BadNoteError):
@@ -191,7 +183,6 @@ class TestScale(unittest.TestCase):
     #     correct = ['E', 'F#', 'G', 'A', 'B', 'C', 'D', 'E']
     #     s = Scale(root='e', scale_name='minor')
     #     self.assertEqual(s.get_scale_notes(), correct)
-
 
     # def test_flat_scale(self):
     #     correct = ['D', 'Eb', 'F', 'G', 'Ab', 'Bb', 'C', 'D']
