@@ -35,12 +35,12 @@ class Scale:
     Some notes are considered to be members of a diatonic scale.
 
     Using 'scale', we will create a chromatic scale,
-    with notes that have diatonic flags within. The type of 
+    with notes that have diatonic flags within. The type of
     diatonic scale is specified when we create the new Scale Object.
     """
     class _Chromatic:
         """
-        Create a scale a round-robin sequence of chromatic notes, given 
+        Create a scale a round-robin sequence of chromatic notes, given
         """
 
         intervals = [
@@ -64,7 +64,9 @@ class Scale:
             self._notes = []
             root_note, root_acc = Scale._Note.parsestring(root)
             if root_acc < 0:  # if the root note is flat
-                root_note, root_acc = Scale._Note.step_down((root_note, root_acc))
+                root_note, root_acc = (
+                    Scale._Note.step_down((root_note,
+                                           root_acc)))
                 use_flats = True
             accs = (0, 1)  # otherwise use sharps
             exclude = ('B', 'E')  # ie. E-sharp is just F
@@ -72,7 +74,8 @@ class Scale:
                 for acc in accs:
                     if chr(n) not in exclude or acc == 0:
                         self._notes.append(Scale._Note(chr(n), acc, use_flats))
-                    if (root_note == chr(n) and acc == root_acc):  # if this our start,
+                    if (root_note == chr(n)
+                        and acc == root_acc):  # if this our start,
                         self.pointer = len(self._notes) - 1
             self.set_intervals()
 
@@ -102,13 +105,18 @@ class Scale:
 
     class _Note:
         """
-        Dialing back the complexity of this object. Notes are composed of a
-        'name' (A-G) as well as an 'accidental' (number of sharps and flats).
-        A note can be identified in different ways: E-flat is the same as D-sharp. A note can't be changed once created, but will have its other 
-        'names' recorded internally. 
-        A note also has its relationship inside the scale recorded, so that a 
-        note D inside of a C major scale will 'know' that it is a second.
-        Let's gooo
+        Dialing back the complexity of this object.
+        Notes are composed of a 'name' (A-G) as well
+        as an 'accidental' (number of sharps and flats).
+        A note can be identified in different ways: E-flat is the
+        same as D-sharp. A note can't be changed
+        once created, but will have its other 'names'
+        recorded internally as aliases.
+        A note also has its relationship inside the
+        chromatic scale recorded, so that a note D
+        inside of a C chromatic scale will 'know'
+        that it is a Major second / diminished minor third.
+        From this we can derive diatonic scales/chords.
         """
 
         @classmethod
@@ -170,9 +178,25 @@ class Scale:
             self._note_name = note_name  # A-G
             self._accidental = accidental  # + for sharps, - for flats
             self.dia_role = []  # its role in forming a diatonic scale
-            self._use_flats = use_flats  # When notes are printed, use flats
-            self._flat_alias=self.step_up((self._note_name, self._accidental))
-            self._sharp_alias = self.step_down((self._note_name, self._accidental))
+            # self._use_flats = use_flats  # When notes are printed, use flats
+            self._flat_alias = self.step_up((self._note_name,
+                                             self._accidental))
+            self._sharp_alias = self.step_down((self._note_name,
+                                                self._accidental))
+            " pref repr used to define how the note is named."
+            " if the root is flat, we use the flat alias"
+            if use_flats and self._accidental != 0:
+                self._pref_repr = self._flat_alias
+            else:
+                self._pref_repr = (self._note_name, self._accidental)
+
+        def note_letter_up(self):
+            "changes pref repr so C#->Db"
+            self._pref_repr = self._flat_alias
+
+        def note_letter_down(self):
+            "changes pref repr so Db->C#"
+            self._pref_repr = self._sharp_alias
 
         def set_interval(self, intervals):
             "intervals here are a list of two"
@@ -215,11 +239,7 @@ class Scale:
                 return False
 
         def __repr__(self):
-            if self._use_flats and self._accidental != 0:
-                name, acc = self._flat_alias
-            else:
-                name = self._note_name
-                acc = self._accidental
+            name, acc = self._pref_repr
             suffix = ''
             if acc < 0:
                 suffix = '\u266d' * abs(acc)
@@ -313,5 +333,5 @@ if __name__ == "__main__":
     for i in ['C', 'C#', 'Db', 'D', 'Gb', 'G']:
         c = Scale(root=i, scale='major')
         print(c)
-    x = c.index('G#')
+    x = c.index('D')
     print(x)

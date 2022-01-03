@@ -3,7 +3,8 @@ import sys
 import unittest as unittest
 sys.path.append('../scale_tool')
 
-from scale_tool.scale_mod import BadNoteError, Scale, BadScaleError, NoRootError
+from scale_tool.scale_mod import (BadNoteError,
+                                  Scale, BadScaleError, NoRootError)
 
 
 class TestNote(unittest.TestCase):
