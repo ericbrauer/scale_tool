@@ -3,7 +3,7 @@ import sys
 import unittest as unittest
 sys.path.append('../scale_tool')
 
-from scale_tool.scale_mod import BadNoteError, Scale
+from scale_tool.scale_mod import BadNoteError, Scale, BadScaleError, NoRootError
 
 
 class TestNote(unittest.TestCase):
@@ -157,14 +157,14 @@ class TestScale(unittest.TestCase):
     #         s = Scale(root=key, scale_name='major')
     #         self.assertEqual(s.root, key)
 
-    # def test_bad_root(self):
-    #     # s = Scale('2')
-    #     with self.assertRaises(BadRootError):
-    #         s = Scale(root='2')
+    def test_bad_root(self):
+        # s = Scale('2')
+        with self.assertRaises(BadNoteError):
+            s = Scale(root='2')
 
-    # def test_bad_scale(self):
-    #     with self.assertRaises(BadScaleError):
-    #         s = Scale(root='c', scale_name='garbage')
+    def test_bad_scale(self):
+        with self.assertRaises(BadScaleError):
+            s = Scale(root='C', scale='garbage')
 
     # def test_minor(self):
     #     correct = ['C', 'D', 'D#', 'F', 'G', 'G#', 'A#', 'C']

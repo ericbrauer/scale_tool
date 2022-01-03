@@ -259,15 +259,16 @@ class Scale:
             self.root = kwargs['root']
         except KeyError:
             raise NoRootError()
+            return 0
 
         self._chr_scale = Scale._Chromatic(self.root)
 
         try:
             self.dia_name = kwargs['scale']
             assert self.dia_name in self.scales.keys()
+            self.dia_scale = self.create_diatonic()
         except (KeyError, AssertionError):
             raise BadScaleError(self.dia_name)
-        self.dia_scale = self.create_diatonic()
 
     def create_diatonic(self, placeholder=False):
         "build a diatonic list. placeholder creates an empty item for notes not in scale"
