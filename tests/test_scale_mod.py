@@ -144,7 +144,7 @@ class TestChromaticDFlat(unittest.TestCase):
             self.assertEqual(str(self.s[k]), v)
 
 
-class TestScale(unittest.TestCase):
+class TestScaleMajMin(unittest.TestCase):
     "diatonic scale tests"
 
     def test_c_maj(self):
@@ -198,6 +198,117 @@ class TestScale(unittest.TestCase):
             ]
         for i, o in zip(input, output):
             s = Scale(root=i, scale='minor')
+            self.assertEqual(str(s), o)
+
+class TestScaleOthers(unittest.TestCase):
+    "for pentatonics, blues, etc."
+
+
+    def test_melminors(self):
+        "there should be one note name per scale"
+        input = ['C', 'C#', 'Db', 'D', 'Gb', 'G']
+        output = [
+            '[C, D, E♭, F, G, A, B]',
+            '[C♯, D♯, E, F♯, G♯, A♯, B♯]',
+            '[D♭, E♭, F♭, G♭, A♭, B♭, C]',
+            '[D, E, F, G, A, B, C♯]',
+            '[G♭, A♭, B♭♭, C♭, D♭, E♭, F]',
+            '[G, A, B♭, C, D, E, F♯]',
+            ]
+        for i, o in zip(input, output):
+            s = Scale(root=i, scale='melodic_minor')
+            self.assertEqual(str(s), o)
+
+    def test_harmminors(self):
+        "there should be one note name per scale"
+        input = ['C', 'C#', 'Db', 'D', 'Gb', 'G']
+        output = [
+            '[C, D, E♭, F, G, A♭, B]',
+            '[C♯, D♯, E, F♯, G♯, A, B♯]',
+            '[D♭, E♭, F♭, G♭, A♭, B♭♭, C]',
+            '[D, E, F, G, A, B♭, C♯]',
+            '[G♭, A♭, B♭♭, C♭, D♭, E♭♭, F]',
+            '[G, A, B♭, C, D, E♭, F♯]',
+            ]
+        for i, o in zip(input, output):
+            s = Scale(root=i, scale='harmonic_minor')
+            self.assertEqual(str(s), o)
+
+
+    def test_majblues(self):
+        "there should be one note name per scale"
+        input = ['C', 'C#', 'Db', 'D', 'Gb', 'G']
+        output = [
+            '[C, D, E♭, F♭, G, A]',
+            '[C♯, D♯, E, F, G♯, A♯]',
+            '[D♭, E♭, F♭, G♭♭, A♭, B♭]',
+            '[D, E, F, G♭, A, B]',
+            '[G♭, A♭, B♭♭, C♭♭, D♭, E♭]',
+            '[G, A, B♭, C♭, D, E]',
+            ]
+        for i, o in zip(input, output):
+            s = Scale(root=i, scale='major_blues')
+            self.assertEqual(str(s), o)
+
+
+    def test_minblues(self):
+        "there should be one note name per scale"
+        input = ['C', 'C#', 'Db', 'D', 'Gb', 'G']
+        output = [
+            '[C, D, E♭, F, G, A♭, B♭]',
+            '[C♯, D♯, E, F♯, G♯, A, B]',
+            '[D♭, E♭, F♭, G♭, A♭, B♭♭, C♭]',
+            '[D, E, F, G, A, B♭, C]',
+            '[G♭, A♭, B♭♭, C♭, D♭, E♭♭, F♭]',
+            '[G, A, B♭, C, D, E♭, F]',
+            ]
+        for i, o in zip(input, output):
+            s = Scale(root=i, scale='minor_blues')
+            self.assertEqual(str(s), o)
+    
+    def test_pmaj(self):
+        "there should be one note name per scale"
+        input = ['C', 'C#', 'Db', 'D', 'Gb', 'G']
+        output = [
+            '[C, D, E♭, F, G, A♭, B♭]',
+            '[C♯, D♯, E, F♯, G♯, A, B]',
+            '[D♭, E♭, F♭, G♭, A♭, B♭♭, C♭]',
+            '[D, E, F, G, A, B♭, C]',
+            '[G♭, A♭, B♭♭, C♭, D♭, E♭♭, F♭]',
+            '[G, A, B♭, C, D, E♭, F]',
+            ]
+        for i, o in zip(input, output):
+            s = Scale(root=i, scale='pentatonic_major')
+            self.assertEqual(str(s), o)
+
+    def test_pmin(self):
+        "there should be one note name per scale"
+        input = ['C', 'C#', 'Db', 'D', 'Gb', 'G']
+        output = [
+            '[C, D, E♭, F, G, A♭, B♭]',
+            '[C♯, D♯, E, F♯, G♯, A, B]',
+            '[D♭, E♭, F♭, G♭, A♭, B♭♭, C♭]',
+            '[D, E, F, G, A, B♭, C]',
+            '[G♭, A♭, B♭♭, C♭, D♭, E♭♭, F♭]',
+            '[G, A, B♭, C, D, E♭, F]',
+            ]
+        for i, o in zip(input, output):
+            s = Scale(root=i, scale='pentatonic_minor')
+            self.assertEqual(str(s), o)
+    
+    def test_pblues(self):
+        "there should be one note name per scale"
+        input = ['C', 'C#', 'Db', 'D', 'Gb', 'G']
+        output = [
+            '[C, D, E♭, F, G, A♭, B♭]',
+            '[C♯, D♯, E, F♯, G♯, A, B]',
+            '[D♭, E♭, F♭, G♭, A♭, B♭♭, C♭]',
+            '[D, E, F, G, A, B♭, C]',
+            '[G♭, A♭, B♭♭, C♭, D♭, E♭♭, F♭]',
+            '[G, A, B♭, C, D, E♭, F]',
+            ]
+        for i, o in zip(input, output):
+            s = Scale(root=i, scale='pentatonic_blues')
             self.assertEqual(str(s), o)
 
 
