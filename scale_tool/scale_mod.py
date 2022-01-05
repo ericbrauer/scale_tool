@@ -342,7 +342,7 @@ class Scale:
 
 if __name__ == "__main__":
     for i in ['C', 'C#', 'Db', 'D', 'Gb', 'G']:
-        c = Scale(root=i, scale='minor')
+        c = Scale(root=i, scale='pentatonic_blues')
         print(c)
     x = c.index('D')
     print(x)
