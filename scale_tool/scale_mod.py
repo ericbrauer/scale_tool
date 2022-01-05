@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
 
-import sys
-import getopt
-from typing import get_args
-
-# TODO: interval should return only index int
-# TODO: so what if we implemented a dict, where the key is the interval (1,2,5, etc.) and the value is the note?
 
 '''
-Found later: https://www.mvanga.com/blog/basic-music-theory-in-200-lines-of-python
+Found https://www.mvanga.com/blog/basic-music-theory-in-200-lines-of-python
 '''
 
 
@@ -18,12 +12,12 @@ class NoRootError(ValueError):
         super(NoRootError, self).__init__(self.message, *args)
 
 
-class BadRootError(ValueError):
+class BadNoteError(ValueError):
     """the note you defined is not part of the Western Scale"""
-    def __init__(self, root, *args):
+    def __init__(self, root=None, *args):
         self.message = 'the note you defined is not part of the Western Scale'
         self.root = root
-        super(BadRootError, self).__init__(self.message, self.root, *args)
+        super(BadNoteError, self).__init__(self.message, self.root, *args)
 
 
 class BadScaleError(ValueError):
@@ -37,81 +31,237 @@ class BadScaleError(ValueError):
 
 class Scale:
     """
-    A class to define a musical scale based on two arguments: the root notes
-    and the scale name. Not defining these arguments will create a C Major
-    scale. Defining a scale that hasn't been implemented (or a root note that
-    isn't between A and G#) will raise custom exceptions defined above.
+    Doing a rethink. A scale is chromatic, made up of note objects.
+    Some notes are considered to be members of a diatonic scale.
+
+    Using 'scale', we will create a chromatic scale,
+    with notes that have diatonic flags within. The type of
+    diatonic scale is specified when we create the new Scale Object.
     """
-
-    class Note:
+    class _Chromatic:
         """
-        This note object should be able to contain its sharp/flat 'aliases' 
-        and hopefully allow more functionality (octaves, interval id?, pitch)
-        in the future.
+        Create a scale a round-robin sequence of chromatic notes, given
         """
 
-        sharps = ['C#', 'D#', 'F#', 'G#', 'A#']
-        flats = ['Db', 'Eb', 'Gb', 'Ab', 'Bb']
+        intervals = [
+            ['P1', 'd2'],  # Perfect unison   Diminished second
+            ['m2', 'A1'],  # Minor second     Augmented unison
+            ['M2', 'd3'],  # Major second     Diminished third
+            ['m3', 'A2'],  # Minor third      Augmented second
+            ['M3', 'd4'],  # Major third      Diminished fourth
+            ['P4', 'A3'],  # Perfect fourth   Augmented third
+            ['d5', 'A4'],  # Diminished fifth Augmented fourth
+            ['P5', 'd6'],  # Perfect fifth    Diminished sixth
+            ['m6', 'A5'],  # Minor sixth      Augmented fifth
+            ['M6', 'd7'],  # Major sixth      Diminished seventh
+            ['m7', 'A6'],  # Minor seventh    Augmented sixth
+            ['M7', 'd8'],  # Major seventh    Diminished octave
+            ['P8', 'A7'],  # Perfect octave   Augmented seventh
+        ]
 
-        def __init__(self, note, index):
-            self.note_name = note
-            self.index = int(index)
-            if note in self.sharps:  # index of sharps to flats should match up
-                self.note_alias = self.flats[self.sharps.index(note)]
-                self.is_sharp = True
-            elif note in self.flats:
-                self.note_alias = self.sharps[self.flats.index(note)]
-                self.is_flat = True
+        def __init__(self, root):
+            use_flats = False
+            self._notes = []
+            root_note, root_acc = Scale._Note.parsestring(root)
+            if root_acc < 0:  # if the root note is flat
+                root_note, root_acc = (
+                    Scale._Note.step_down((root_note,
+                                           root_acc)))
+                use_flats = True
+            accs = (0, 1)  # otherwise use sharps
+            exclude = ('B', 'E')  # ie. E-sharp is just F
+            for n in range(ord('A'), ord('H')):
+                for acc in accs:
+                    if chr(n) not in exclude or acc == 0:
+                        self._notes.append(Scale._Note(chr(n), acc, use_flats))
+                    if (root_note == chr(n)
+                        and acc == root_acc):  # if this our start,
+                        self.pointer = len(self._notes) - 1
+            self.set_intervals()
+
+        def set_intervals(self):
+            "apply intervals to the chromatic scale"
+            notes = self._notes[self.pointer:] + self._notes[:self.pointer]
+            for n, i in zip(notes, self.intervals):
+                n.set_interval(i)
+
+        def __len__(self):
+            return len(self._notes)
+
+        def __getitem__(self, position):
+            position += self.pointer
+            if position >= len(self._notes):
+                position %= len(self._notes)
+            return self._notes[position]
+
+        def __repr__(self):
+            return str(self._notes[self.pointer:] + self._notes[:self.pointer])
+
+        def start_at(self, note):
+            try:
+                self.pointer = self._notes.index(note)
+            except ValueError:
+                print("Problem!")
+
+    class _Note:
+        """
+        Dialing back the complexity of this object.
+        Notes are composed of a 'name' (A-G) as well
+        as an 'accidental' (number of sharps and flats).
+        A note can be identified in different ways: E-flat is the
+        same as D-sharp. A note can't be changed
+        once created, but will have its other 'names'
+        recorded internally as aliases.
+        A note also has its relationship inside the
+        chromatic scale recorded, so that a note D
+        inside of a C chromatic scale will 'know'
+        that it is a Major second / diminished minor third.
+        From this we can derive diatonic scales/chords.
+        """
+
+        @classmethod
+        def parsestring(cls, note):
+            "will attempt to create a tuple of name/accidental, given a string"
+            try:
+                note_name, *acc = [char for char in note]  # split up a string
+                assert note_name in [chr(n) for n in range(ord('A'), ord('H'))]
+            except AssertionError:
+                raise BadNoteError(note)
+            x = 0
+            for char in acc:
+                if char in ('#', '\u266f'):  # final all sharps
+                    x += 1
+                elif char in ('b', '\u266d'):  # find all flats
+                    x -= 1
+                else:
+                    raise BadNoteError(note)
+            return (note_name, x)  # return as tuple
+
+        @classmethod
+        def isvalid(cls, note):
+            "check if a note is valid or not"
+            try:
+                cls.parsestring(note)
+            except BadNoteError:
+                return False
+            return True
+
+        @classmethod
+        def step_down(cls, note_tup):
+            "eg. changes a D-flat into a C-sharp"
+            notename, acc = note_tup
+            n = ord(notename) - 1
+            if n == 64:  # changes an A to a G
+                n = 71
+            new_nname = chr(n)
+            if new_nname in ('B', 'E'):  # only one half-step btwn B and C.
+                acc += 1
             else:
-                self.note_alias = note  # C alias is C? might eliminate weirdness
+                acc += 2
+            return (new_nname, acc)
+
+        @classmethod
+        def step_up(cls, note_tup):
+            "eg. changes a C-sharp into D-flat"
+            notename, acc = note_tup
+            n = ord(notename) + 1
+            if n == 72:  # changes a G to an A
+                n = 65
+            new_nname = chr(n)
+            if new_nname in ('C', 'F'):  # only one half-step btwn B and C.
+                acc -= 1
+            else:
+                acc -= 2
+            return (new_nname, acc)
+
+        def __init__(self, note_name, accidental, use_flats=False):
+            self._note_name = note_name  # A-G
+            self._accidental = accidental  # + for sharps, - for flats
+            self.dia_role = []  # its role in forming a diatonic scale
+            # self._use_flats = use_flats  # When notes are printed, use flats
+            self._flat_alias = self.step_up((self._note_name,
+                                             self._accidental))
+            self._sharp_alias = self.step_down((self._note_name,
+                                                self._accidental))
+            " pref repr used to define how the note is named."
+            " if the root is flat, we use the flat alias"
+            if use_flats and self._accidental != 0:
+                self._pref_repr = self._flat_alias
+            else:
+                self._pref_repr = (self._note_name, self._accidental)
+
+        def letter_up(self):
+            "changes pref repr so C#->Db"
+            self._pref_repr = self._flat_alias
+
+        def letter_down(self):
+            "changes pref repr so Db->C#"
+            self._pref_repr = self._sharp_alias
+
+        def set_interval(self, intervals):
+            "intervals here are a list of two"
+            "for example, maj 3rd, dim 4th"
+            self.dia_role = intervals
+
+        def get_interval(self, alt=False):
+            "return first interval, unless specified"
+            if alt:
+                return self.dia_role[1]
+            else:
+                return self.dia_role[0]
+
+        # not sure if this is the right approach
+        def __contains__(self, interval):
+            "sees if an interval is in the note"
+            for i in self.dia_role:
+                if i == interval:
+                    return interval
+            return None
 
         def __eq__(self, other):
-            "the either the flat or sharp will return True"
-            if self.note_name == other:
+            "compare two notes"
+            if isinstance(other, str):
+                on, oa = self.parsestring(other)
+                o = Scale._Note(on, oa)
+            if isinstance(other, tuple):
+                on, oa = other
+                o = Scale._Note(on, oa)
+            elif isinstance(other, Scale._Note):
+                o = other
+            ot = o.return_tuple()
+            if ot == self.return_tuple():
                 return True
-            elif self.note_alias == other:
-                temp = self.note_name
-                self.note_name = self.note_alias
-                self.note_alias = temp
+            elif ot == self._sharp_alias:
+                return True
+            elif ot == self._flat_alias:
                 return True
             else:
                 return False
 
-        def __str__(self):
-            return self.note_name.replace('b', '\u266d') \
-                .replace('#', '\u266f')
-        
-        #def __format__(self, format):
-        #    return self.note_name
+        def __repr__(self):
+            name, acc = self._pref_repr
+            suffix = ''
+            if acc < 0:
+                suffix = '\u266d' * abs(acc)
+            elif acc > 0:
+                suffix = '\u266f' * acc
+            return name + suffix
 
-        def __index__(self):
-            return self.index
-
-        def set_index(self, num):
-            self.index = int(num)
-
-
-    sharp_notes_str = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
-                   'A', 'A#', 'B']
-
-    flat_notes_str = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 
-                  'A', 'Bb', 'B']
-
-    scale_notes = []
-
+        def return_tuple(self):
+            return (self._note_name, self._accidental)
 
 # this way of defining intervals sucks, actually.
-    scales = {
-        'major':        [0, 1, 1, 0.5, 1, 1, 1, 0.5],
-        'minor':        [0, 1, 0.5, 1, 1, 0.5, 1, 1],
-        'melodic_minor': [0, 1, 0.5, 0.5, 1, 1, 1, 0.5],
-        'harmonic_minor': [0, 1, 0.5, 0.5, 1, 1, 0.5, 0.5],
-        'major_blues': [0, 1, 0.5, 0.5, 1.5, 1, 1.5],
-        #'minor_blues':
-        'pentatonic_major': [0, 1, 1, 0.5, 1.5, 1, 1.5]
-        #'pentatonic_minor':
-        # 'pentatonic_blues': 
-        }
+    scales = {  # key: P: perfect, M: major, m: minor
+        'major': ['P1', 'M2', 'M3', 'P4', 'P5', 'M6', 'M7'],
+        'minor': ['P1', 'M2', 'm3', 'P4', 'P5', 'm6', 'm7'],
+        'melodic_minor': ['P1', 'M2', 'm3', 'P4', 'P5', 'M6', 'M7'],
+        'harmonic_minor': ['P1', 'M2', 'm3', 'P4', 'P5', 'm6', 'M7'],
+        'major_blues': ['P1', 'M2', 'm3', 'M3', 'P5', 'M6'],
+        'minor_blues': ['P1', 'm3', 'P4', 'd5', 'P5', 'm7'],
+        'pentatonic_major': ['P1', 'M2', 'M3', 'P5', 'M6'],
+        'pentatonic_minor': ['P1', 'm3', 'P4', 'P5', 'm7'],
+        'pentatonic_blues': ['P1', 'm3', 'P4', 'd5', 'P5', 'm7']
+    }
 
     modes = {
         'ionian':       [0, 1, 1, 0.5, 1, 1, 1, 0.5],
@@ -124,109 +274,60 @@ class Scale:
     }
 
     def __init__(self, **kwargs):
-        "verify args, run methods to get scale"
-        # n = Scale.Note('C')
-        # n2 = Scale.Note('D#')
-        # nlist = [n, n2]
-        # if 'C' in nlist:
-        #     print('c note correctly identified.')
         try:
-            assert 'root' in kwargs.keys()
-        except AssertionError:
-            raise NoRootError
+            self.root = kwargs['root']
+        except KeyError:
+            raise NoRootError()
+            return 0
+
+        self._chr_scale = Scale._Chromatic(self.root)
+
         try:
-            self.root = Scale.Note(kwargs['root'], 0)
-            assert self.root in self.flat_notes_str, self.sharp_notes_str
-        except AssertionError:
-            raise BadRootError(self.root)
-        if 'scale_name' not in kwargs.keys():
-            raise BadScaleError('You must specify a scale name to proceed')
-        try:
-            self.scale_name = kwargs['scale_name'].lower()
-            assert self.scale_name in self.scales.keys()
-            self.scale = self.scales[self.scale_name]
-        except AssertionError:
-            raise BadScaleError(self.scale_name)
-        self.flat_notes = [Scale.Note(string, -1) for string in self.flat_notes_str]
-        self.sharp_notes = [Scale.Note(string, -1) for string in self.sharp_notes_str]
+            self.dia_name = kwargs['scale']
+            assert self.dia_name in self.scales.keys()
+            self.dia_scale = self.create_diatonic()
+        except (KeyError, AssertionError):
+            raise BadScaleError(self.dia_name)
 
-        self.set_chromatic_scales()
+    def create_diatonic(self, placeholder=False):
+        "build a diatonic list. placeholder creates an empty item for notes not in scale"
+        output = []
+        intervals = self.scales[self.dia_name]
+        note_gen = (n for n in self._chr_scale)  # creates a generator
+        first = True
+        prev = 0
+        for step in intervals:
+            while True:
+                note = next(note_gen)  # get next note in sequence
+                if step in note:
+                    let = ord(note.return_tuple()[0])  # 65 from A#
+                    if let == 65 and prev != 65:  # if current is A
+                        prev = 64  # G becomes 1 before A
+                    if let - prev > 1 and not first:  # eg: A - C = 2
+                        note.letter_down()
+                    elif let - prev < 1 and not first:  # eg: Eb - E = 0
+                        note.letter_up()
+                    output.append(note)
+                    prev = ord(str(note)[0])  # grab '65' from 'A#'
+                    first = False
+                    break
+                elif placeholder is not False:
+                    output.append(placeholder)
+                    # TODO make sure that no notenames repeat.
+        return output
 
+    def index(self, note):
+        "return the position of note"
+        return self.dia_scale.index(note)
 
-    def set_chromatic_scales(self):
-        self.chr_sc_flats = self.create_chromatic_scale(self.root, 'flat')
-        self.chr_sc_sharps = self.create_chromatic_scale(self.root, 'sharp')
+    def __len__(self):
+        return len(self.dia_scale)
 
-    def get_chromatic_scale(self, first_note=None, fl_sh='sharp'):
-        "returns either flat or sharp variation"
-        if first_note is None:
-            first_note = self.root
-        first_note_ind = self.chr_sc_sharps.index(first_note)
-        if fl_sh == 'sharp':
-            return self.chr_sc_sharps[first_note_ind:] + self.chr_sc_sharps[:first_note_ind]
-        else:
-            return self.chr_sc_flats[first_note_ind:] + self.chr_sc_flats[:first_note_ind]
+    def __getitem__(self, position):
+        return self.dia_scale[position]
 
-    def create_chromatic_scale(self, first_note=None, fl_sh='sharp'):
-        if fl_sh == 'sharp':
-            allnotes = self.sharp_notes
-        else:
-            allnotes = self.flat_notes
-        if first_note is None:
-            first_note = self.root
-        x = allnotes.index(first_note)
-        new_notes = allnotes[x:]
-        for index, note in enumerate(allnotes[:x]):
-            new_notes.append(Scale.Note(note, index))
-        # new_notes.append(Scale.Note(allnotes[x]))
-        return new_notes
-
-    def get_scale_notes(self):
-        "returns a list of notes in the defined scale"
-        if self.scale_name == "chromatic":
-            return self.get_chromatic_scale()
-        element = 0
-        chr = self.get_chromatic_scale()
-        scale_notes = []
-        for index in range(len(self.scale)-1):
-            element = int(element + (self.scale[index] * 2))
-            # chr[element].set_index(index)  # set the index to its position in the scale
-            scale_notes.append(chr[element])
-        return scale_notes
-
-    def get_sc_notes_with_blanks(self):
-        "same as get_sc_notes_but has empty elements for notes not in scale"
-        sc_notes = self.get_scale_notes()
-        chr_notes = self.get_chromatic_scale()
-        rtrn = []
-        for i in chr_notes:
-            if i in sc_notes:
-                rtrn.append(i)
-            else:
-                rtrn.append(None)
-        return rtrn
-
-    def get_next(self, first_note=None):
-        "generator. first arg sets where we start, not root"
-        if first_note is None:
-            first_note = self.root
-        sc_notes = self.get_scale_notes()
-        chr_notes = self.get_chromatic_scale(first_note)
-        while True:
-            for i in chr_notes:
-                if i in sc_notes:
-                    yield i
-                else:
-                    yield None
-
-    def get_flat_note(self, note):
-        return self.flat_notes[note]
-
-    def get_flat_scale(self):
-        flat_scale = []
-        for element in self.get_scale_notes():
-            flat_scale.append(self.get_flat_note(element))
-        return flat_scale
+    def __repr__(self):
+        return str(self.dia_scale)
 
     @classmethod
     def get_scales(cls):
@@ -238,75 +339,10 @@ class Scale:
         "return all possible notes of the Western scale"
         return cls.all_notes
 
-    def get_interval(self, interval):
-        "returns an interval, like fifth"
-        try:
-            assert interval < (len(self.scale)+1)
-        except AssertionError:
-            print('your interval is bad')
-            raise
-        interval_note = self.scale[(interval-1)]
-        print('The {} of the {} - {} scale is {}.'.format(interval,
-                                                          self.root,
-                                                          self.scale_name,
-                                                          interval_note))
-        return interval_note
 
-
-def usage():
-    print('Use -h or --help to read this message')
-    print('Use -r or --root= to set a root note for the scale')
-    print('Use -n or --scale_note= to set a type of scale to return')
-
-
-def main(argv):
-    "here's where we handle system arguments in case people wish to use this"
-    "module as a standalone cli tool"
-    try:
-        opts, args = getopt.getopt(argv, "hr:n:", ["help", "root=", "scale_name="])
-        if opts is None: # this  is not working
-            raise getopt.GetoptError
-    except getopt.GetoptError:
-        usage()
-        # Scale.get_scales()
-        sys.exit(1)
-    # try:
-    for opt, arg in opts:
-        if opt in ("-h", "--help"):
-            usage()
-            sys.exit(0)
-        elif opt in ("-r", "--root"):
-            root = str(arg)
-        elif opt in ("-n", "--scale_name"):
-            scale_name = str(arg)
-        else:
-            print('use -h for help')
-            sys.exit(1)
-    # except BadRootError:
-    # TODO: no catch of no root variable here.
-
-    try:
-        # ok, problem here. if root is set in options, I want it passed to init.
-        # But if not, it shouldn't be passed.
-        # this is... overloading? Check the old C++ book maybe.
-        s = Scale(root=root, scale_name=scale_name)
-        print(s.get_scale_notes())
-        sys.exit(0)
-    except BadRootError:
-        print('Error: the root you entered was not valid.')
-        print('Acceptable root notes are any of the following: ')
-        for note in Scale.get_all_notes():
-            print(note)
-        sys.exit(2)
-    except BadScaleError:
-        print('Error: we didn\'t recognize the scale you specified.')
-        print('Acceptable scales include any of the following: ')
-        for scale in Scale.get_scales():
-            print(scale)
-        sys.exit(2)
-
-
-if __name__ == '__main__':
-    c = Scale(root="C", scale_name="major")
-    print(c.get_scale_notes())
-    print(c.get_sc_notes_with_blanks())
+if __name__ == "__main__":
+    for i in ['C', 'C#', 'Db', 'D', 'Gb', 'G']:
+        c = Scale(root=i, scale='pentatonic_blues')
+        print(c)
+    x = c.index('D')
+    print(x)
