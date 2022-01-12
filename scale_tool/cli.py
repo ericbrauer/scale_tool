@@ -29,7 +29,7 @@ class Fretboard:
     def draw_fretboard(self):
         print('    ', end="")
         strings = []
-        sc_obj = Scale(root=self.root, scale_name=self.scale_name)
+        sc_obj = Scale(root=self.root, scale=self.scale_name)
         for note in self.tuning:
             strings.append(sc_obj.get_next(note))  # this is a generator
         for note in strings:

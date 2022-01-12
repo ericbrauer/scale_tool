@@ -316,6 +316,20 @@ class Scale:
                     # TODO make sure that no notenames repeat.
         return output
 
+    def get_next(self, first_note=None, placeholder=None):
+        "generator for diatonic notes"
+        if first_note is None:
+            first_note = self.root
+        chr_notes = self._Chromatic(first_note)
+        di_notes = self.dia_scale
+        while True:
+            for i in chr_notes:
+                if i in di_notes:
+                    yield i
+                else:
+                    yield placeholder
+
+
     def index(self, note):
         "return the position of note"
         return self.dia_scale.index(note)
